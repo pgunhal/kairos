@@ -14,20 +14,12 @@ def get_contacts(query, limit=30):
     }
     params = {
         "query": query,
+        "school": "University of California, Los Angeles",
         "limit": limit, 
     }
     response = requests.get(url, headers=headers, params=params)
     if response.ok:
-        print("Response JSON:", response.json())
+        print("LINKD Response JSON:", response.json())
     else:
         print(f"Request failed: {response.status_code} {response.text}")
     return response
-
-
-# def main():
-#     query = "software engineer"
-#     response = send_request(query=query, limit=1)
-#     print("Full Response Object:", response)
-    
-# if __name__ == "__main__":
-#     main()
