@@ -1,0 +1,94 @@
+.drawer-overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 500px;
+    height: 100%;
+    background: white;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .drawer-input {
+    width: 100%;
+    margin-top: 20px;
+    padding: 10px;
+    font-size: 20px;
+  }
+  
+  .drawer-toolbar {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+  }
+  
+  .drawer-toolbar button {
+    background-color: #eef2f7;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  .drawer-textarea {
+    margin-top: 20px;
+    width: 100%;
+    height: 250px;
+    padding: 10px;
+    font-size: 16px;
+    font-family: monospace;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+  }
+  
+  .drawer-actions {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+
+  .close-btn {
+    background-color: transparent;
+    color: #555;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  
+  .ai-form {
+    margin-top: 20px;
+  }
+  
+  .ai-form .input-field {
+    margin-bottom: 10px;
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+  }
+  
+  .drawer-toolbar button {
+    background-color: #e0f0ff;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    margin-right: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .drawer-toolbar button:hover {
+    background-color: #cce4ff;
+  }
+  

@@ -26,11 +26,10 @@ exports.searchJobs = async (req, res) => {
 
 exports.getSearchHistory = async (req, res) => {
   try {
-    // const searches = await Search.find({ userId: req.user.id })
-    //   .sort({ timestamp: -1 });
+    const searches = await Search.find({ userId: req.user.id })
+      .sort({ timestamp: -1 });
     
-    // res.json(searches);
-    res.json({search: search._id, jobs: ["SDE Intern", "ML Intern"]});
+    res.json(searches);
 
   } catch (error) {
     res.status(500).json({ message: '2 error', error: error.message });
