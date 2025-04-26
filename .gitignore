@@ -1,3 +1,7 @@
 server/.env
 .env
 venv
+client_secret.json
+token.json
+calendar/dain_calendar/*.env.development
+node_modules/
