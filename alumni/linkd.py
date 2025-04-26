@@ -14,3 +14,15 @@ async def connect_to_websocket():
     websocket = await websockets.connect(uri, extra_headers=headers)
     print("Connected to WebSocket")
     return websocket 
+
+async def send_request(websocket, query, limit=30):
+    request = {
+        "query": query,
+        "limit": limit, 
+    }
+    await websocket.send(request)
+    response = await websocket.recv()
+    print("Received response:", response)
+    return response
+
+
