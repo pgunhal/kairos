@@ -1,0 +1,132 @@
+.template-editor-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .editor-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .editor-toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .editor-toolbar button {
+    background-color: #eef2f7;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  .editor-textarea {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    font-family: monospace;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+  
+  .editor-actions {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+
+  .editor-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 400px;
+    height: 100vh;
+    background: #fff;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 25px;
+    z-index: 150;
+  }
+  
+  .editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .editor-header h2 {
+    font-size: 24px;
+    font-weight: 700;
+  }
+  
+  .close-btn {
+    font-size: 20px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: #888;
+  }
+  
+  .input-field,
+  textarea,
+  select {
+    width: 100%;
+    padding: 10px 15px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+  }
+  
+  .placeholder-buttons {
+    margin-bottom: 15px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  
+  .placeholder-buttons button {
+    background: #f1f5f9;
+    border: none;
+    border-radius: 20px;
+    padding: 6px 15px;
+    font-size: 14px;
+    color: #34495e;
+    cursor: pointer;
+  }
+  
+  .editor-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: auto;
+  }
+  
+  .save-btn, .generate-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  
+  .save-btn {
+    background: #3498db;
+    color: #fff;
+  }
+  
+  .generate-btn {
+    background: #95a5a6;
+    color: white;
+  }
+  

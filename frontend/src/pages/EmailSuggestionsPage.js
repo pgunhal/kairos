@@ -1,120 +1,215 @@
-import React, { useState } from 'react';
-import api from '../services/api'; // Axios instance
+import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 import '../styles/EmailSuggestions.css';
 
 function EmailSuggestionsPage() {
-  const [suggestions, setSuggestions] = useState([
-    { id: 1, subject: "Opportunity to Connect", body: "Hi there, I would love to chat about opportunities at your company." },
-    { id: 2, subject: "Networking Request", body: "Hope you're doing well! I'm reaching out to learn more about your experience." }
-  ]);
-  const [creatingNew, setCreatingNew] = useState(false);
-  const [newTemplate, setNewTemplate] = useState({ subject: '', body: '' });
+  const [templates, setTemplates] = useState([]);
+  const [editingTemplate, setEditingTemplate] = useState(null);
+  const [newTemplateOpen, setNewTemplateOpen] = useState(false);
+  const [form, setForm] = useState({ name: '', subject: '', body: '' });
+  const [aiOptions, setAiOptions] = useState({ role: '', company: '', experienceLevel: '', tone: '' });
+  const [showAIOptions, setShowAIOptions] = useState(false);
+  const [loadingAI, setLoadingAI] = useState(false);
 
-  const handleSave = async (subject, body) => {
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
+
+  const fetchTemplates = async () => {
     try {
-      const res = await api.post('/api/emails/templates', { name: subject, subject, body });
-      alert('Template saved successfully!');
-    } catch (error) {
-      console.error('Error saving template:', error);
-      alert('Failed to save template. Try again.');
+      const res = await api.get('/api/emails/templates');
+      setTemplates(res.data);
+    } catch (err) {
+      console.error('Error loading templates:', err);
     }
   };
 
-  const handleRegenerate = (index) => {
-    // Replace with your actual AI generation later
-    const newSuggestion = {
-      id: Date.now(),
-      subject: 'New AI Suggestion',
-      body: 'This is a newly AI-generated email suggestion.'
-    };
-    const updatedSuggestions = [...suggestions];
-    updatedSuggestions[index] = newSuggestion;
-    setSuggestions(updatedSuggestions);
+  const openEditor = (template) => {
+    setEditingTemplate(template);
+    setForm({ name: template.name, subject: template.subject, body: template.body });
+    setShowAIOptions(false);
+    setAiOptions({ role: '', company: '', experienceLevel: '', tone: '' });
   };
 
-  const handleInputChange = (e, index, field) => {
-    const updatedSuggestions = [...suggestions];
-    updatedSuggestions[index][field] = e.target.value;
-    setSuggestions(updatedSuggestions);
+  const openNewTemplate = () => {
+    setEditingTemplate(null);
+    setForm({ name: '', subject: '', body: '' });
+    setNewTemplateOpen(true);
+    setShowAIOptions(false);
+    setAiOptions({ role: '', company: '', experienceLevel: '', tone: '' });
   };
 
-  const handleNewInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewTemplate({ ...newTemplate, [name]: value });
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleCreateNewTemplate = async (e) => {
-    e.preventDefault();
-    if (!newTemplate.subject.trim() || !newTemplate.body.trim()) {
-      alert('Please fill out both fields.');
+  const handleSave = async () => {
+    try {
+      if (editingTemplate) {
+        await api.put(`/api/emails/templates/${editingTemplate._id}`, form);
+      } else {
+        await api.post('/api/emails/templates', form);
+      }
+      fetchTemplates();
+      closeEditor();
+    } catch (err) {
+      console.error('Error saving template:', err);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this template?')) return;
+    try {
+      await api.delete(`/api/emails/templates/${id}`);
+      fetchTemplates();
+    } catch (err) {
+      console.error('Error deleting template:', err);
+    }
+  };
+
+  const closeEditor = () => {
+    setEditingTemplate(null);
+    setNewTemplateOpen(false);
+    setForm({ name: '', subject: '', body: '' });
+    setShowAIOptions(false);
+    setAiOptions({ role: '', company: '', experienceLevel: '', tone: '' });
+  };
+
+  const insertPlaceholder = (placeholder) => {
+    setForm((prev) => ({
+      ...prev,
+      body: prev.body + ` {{${placeholder}}} `
+    }));
+  };
+
+  const handleGenerateAI = async () => {
+    if (!showAIOptions) {
+      setShowAIOptions(true);
       return;
     }
-    await handleSave(newTemplate.subject, newTemplate.body);
-    setCreatingNew(false);
-    setNewTemplate({ subject: '', body: '' });
+
+    if (!aiOptions.role || !aiOptions.company || !aiOptions.experienceLevel || !aiOptions.tone) {
+      alert('Please fill all AI generation fields.');
+      return;
+    }
+
+    setLoadingAI(true);
+    try {
+      const res = await api.post('/api/emails/generate', aiOptions);
+      setForm((prev) => ({ ...prev, body: res.data.body }));
+      setShowAIOptions(false);
+      setAiOptions({ role: '', company: '', experienceLevel: '', tone: '' });
+    } catch (err) {
+      console.error('Error generating AI email:', err);
+    } finally {
+      setLoadingAI(false);
+    }
   };
 
   return (
-    <div className="email-suggestions-container">
-      <h1>AI Email Suggestions</h1>
-      <p>Pick, edit, or create your own outreach templates!</p>
+    <div className="email-suggestions-page">
+      <h1>Email Templates</h1>
+      <p>Manage and personalize your outreach emails easily.</p>
 
-      <div className="template-actions">
-        <button className="btn btn-primary" onClick={() => setCreatingNew(!creatingNew)}>
-          {creatingNew ? 'Cancel' : 'Create New Template'}
-        </button>
+      <div className="templates-grid">
+        {templates.map((template) => (
+          <div key={template._id} className="template-card">
+            <div className="template-card-header">
+              <h3>{template.name}</h3>
+              <button className="delete-icon" onClick={() => handleDelete(template._id)}>✖</button>
+            </div>
+            <p>{template.subject}</p>
+            <button className="edit-btn" onClick={() => openEditor(template)}>Edit</button>
+          </div>
+        ))}
+        <div className="template-card new" onClick={openNewTemplate}>
+          + Create New
+        </div>
       </div>
 
-      {creatingNew && (
-        <form className="create-template-form" onSubmit={handleCreateNewTemplate}>
+      {(editingTemplate || newTemplateOpen) && (
+        <div className="editor-sidebar slide-in">
+          <div className="editor-header">
+            <h2>{editingTemplate ? 'Edit Template' : 'New Template'}</h2>
+            <button className="close-btn" onClick={closeEditor}>×</button>
+          </div>
+
+          <input
+            type="text"
+            name="name"
+            placeholder="Template Name"
+            value={form.name}
+            onChange={handleChange}
+            className="input-field"
+          />
           <input
             type="text"
             name="subject"
             placeholder="Template Subject"
-            value={newTemplate.subject}
-            onChange={handleNewInputChange}
+            value={form.subject}
+            onChange={handleChange}
             className="input-field"
-            required
           />
+
+          <div className="placeholder-buttons">
+            {['name', 'jobTitle', 'company', 'senderName'].map((ph) => (
+              <button key={ph} onClick={() => insertPlaceholder(ph)}>
+                {`{{${ph}}}`}
+              </button>
+            ))}
+          </div>
+
           <textarea
             name="body"
             placeholder="Template Body"
-            value={newTemplate.body}
-            onChange={handleNewInputChange}
-            rows={6}
+            value={form.body}
+            onChange={handleChange}
             className="input-field"
-            required
           />
-          <button type="submit" className="btn btn-primary">Save Template</button>
-        </form>
-      )}
 
-      <div className="suggestions-grid">
-        {suggestions.map((s, index) => (
-          <div key={s.id} className="suggestion-card">
-            <input
-              type="text"
-              value={s.subject}
-              onChange={(e) => handleInputChange(e, index, 'subject')}
-              className="input-field"
-            />
-            <textarea
-              value={s.body}
-              onChange={(e) => handleInputChange(e, index, 'body')}
-              rows={6}
-              className="input-field"
-            />
-            <div className="suggestion-actions">
-              <button className="btn btn-primary" onClick={() => handleSave(s.subject, s.body)}>
-                Save This
-              </button>
-              <button className="btn btn-secondary" onClick={() => handleRegenerate(index)}>
-                Regenerate
-              </button>
-            </div>
+          <div className="editor-actions">
+            <button className="save-btn" onClick={handleSave}>
+              Save
+            </button>
+            <button className="generate-btn" onClick={handleGenerateAI} disabled={loadingAI}>
+              {loadingAI ? 'Generating...' : (showAIOptions ? 'Submit to AI' : 'Generate with AI')}
+            </button>
           </div>
-        ))}
-      </div>
+
+          {showAIOptions && (
+            <div className="ai-options">
+              <input
+                type="text"
+                placeholder="Role (e.g. Software Engineer)"
+                value={aiOptions.role}
+                onChange={(e) => setAiOptions({ ...aiOptions, role: e.target.value })}
+                className="input-field"
+              />
+              <input
+                type="text"
+                placeholder="Company"
+                value={aiOptions.company}
+                onChange={(e) => setAiOptions({ ...aiOptions, company: e.target.value })}
+                className="input-field"
+              />
+              <input
+                type="text"
+                placeholder="Experience Level"
+                value={aiOptions.experienceLevel}
+                onChange={(e) => setAiOptions({ ...aiOptions, experienceLevel: e.target.value })}
+                className="input-field"
+              />
+              <input
+                type="text"
+                placeholder="Tone (Friendly/Professional/Excited)"
+                value={aiOptions.tone}
+                onChange={(e) => setAiOptions({ ...aiOptions, tone: e.target.value })}
+                className="input-field"
+              />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
