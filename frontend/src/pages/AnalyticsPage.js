@@ -112,6 +112,13 @@ function AnalyticsPage() {
           )}
         </div>
       </div>
+
+      <div className="goal-tracker">
+        <h3>📅 Weekly Goal</h3>
+        <p>{stats?.totalEmails || 0} / 10 emails sent</p>
+        <progress value={stats?.totalEmails || 0} max="10"></progress>
+    </div>
+
       
       <div className="search-history">
         <h2>Search History</h2>

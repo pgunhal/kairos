@@ -1,90 +1,56 @@
-// client/src/pages/DashboardPage.js
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
+import MetricCard from '../components/MetricCard';
+import ActivityFeed from '../components/ActivityFeed';
+import LoadingSkeleton from '../components/LoadingSkeleton';
 import '../styles/Dashboard.css';
 
 function DashboardPage() {
-  const { user } = useContext(AuthContext);
   const [stats, setStats] = useState(null);
-  const [recentSearches, setRecentSearches] = useState([]);
+  const [activity, setActivity] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
+    async function fetchData() {
       try {
-        const [statsRes, searchesRes] = await Promise.all([
-          api.get('/api/analytics/user-stats'),
-          api.get('/api/jobs/history')
-        ]);
-        
+        const statsRes = await api.get('/api/analytics/user-stats');
         setStats(statsRes.data);
-        setRecentSearches(searchesRes.data.slice(0, 5));
-        setLoading(false);
+        setActivity([
+        //   { type: 'email_sent', name: 'John Doe', time: '2 hours ago' },
+        //   { type: 'meeting_scheduled', name: 'Jane Smith', time: '5 hours ago' }
+        ]);
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        console.error('Error loading dashboard', error);
+      } finally {
         setLoading(false);
       }
-    };
-    
+    }
     fetchData();
   }, []);
 
-  if (loading) {
-    return <div className="loading">Loading dashboard...</div>;
-  }
+  if (loading) return <LoadingSkeleton />;
 
   return (
     <div className="dashboard-container">
-      <h1>Welcome, {user.firstName}!</h1>
-      
-      <div className="dashboard-stats">
-        <div className="stat-card">
-          <h3>Total Searches</h3>
-          <p className="stat-number">{stats?.totalSearches || 0}</p>
-        </div>
-        <div className="stat-card">
-          <h3>Emails Sent</h3>
-          <p className="stat-number">{stats?.totalEmails || 0}</p>
-        </div>
+      <h1>Welcome back!</h1>
+      <p>Your journey toward meaningful alumni connections continues here.</p>
+
+      <div className="quick-actions">
+        <Link to="/search" className="btn btn-primary">🔍 New Search</Link>
+        <Link to="/templates" className="btn btn-secondary">📝 Templates</Link>
+        <Link to="/analytics" className="btn btn-secondary">📈 View Analytics</Link>
       </div>
-      
-      <div className="dashboard-actions">
-        <Link to="/search" className="action-card">
-          <h3>Search Jobs</h3>
-          <p>Find alumni in your desired role</p>
-        </Link>
-        <Link to="/templates" className="action-card">
-          <h3>Email Templates</h3>
-          <p>Manage your outreach templates</p>
-        </Link>
-        <Link to="/analytics" className="action-card">
-          <h3>Analytics</h3>
-          <p>View detailed activity stats</p>
-        </Link>
+
+      <h2>Your Progress</h2>
+      <div className="metric-grid">
+        <MetricCard title="Total Searches" value={stats?.totalSearches || 0} />
+        <MetricCard title="Emails Sent" value={stats?.totalEmails || 0} />
+        <MetricCard title="Success Rate" value={`${Math.round((stats?.totalEmails / (stats?.totalSearches || 1)) * 100)}%`} />
       </div>
-      
-      <div className="recent-searches">
-        <h2>Recent Searches</h2>
-        {recentSearches.length > 0 ? (
-          <div className="search-list">
-            {recentSearches.map((search) => (
-              <div key={search._id} className="search-item">
-                <div className="search-info">
-                  <h4>{search.jobTitle}</h4>
-                  <p>Results: {search.resultsCount} | Emails: {search.emailsSent}</p>
-                </div>
-                <Link to={`/alumni/${encodeURIComponent(search.jobTitle)}`} className="btn btn-small">
-                  View
-                </Link>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p>No recent searches</p>
-        )}
-      </div>
+
+      <h2>Recent Activity</h2>
+      <ActivityFeed activities={activity} />
     </div>
   );
 }

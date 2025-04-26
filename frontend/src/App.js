@@ -9,7 +9,7 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import JobSearchPage from './pages/JobSearchPage';
 import AlumniResultsPage from './pages/AlumniResultsPage';
-import EmailTemplatePage from './pages/EmailTemplatePage';
+import EmailSuggestionsPage from './pages/EmailSuggestionsPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import './App.css';
 
@@ -40,7 +40,7 @@ function App() {
               } />
               <Route path="/templates" element={
                 <PrivateRoute>
-                  <EmailTemplatePage />
+                  <EmailSuggestionsPage />
                 </PrivateRoute>
               } />
               <Route path="/analytics" element={

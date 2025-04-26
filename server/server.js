@@ -15,8 +15,14 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+// app.use(cors());
 app.use(express.json());
+
+app.use(cors({
+    origin: 'http://localhost:3001', // frontend dev URL
+    credentials: true
+  }));
+  
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
