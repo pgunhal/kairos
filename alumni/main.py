@@ -2,7 +2,7 @@ from linkd import get_contacts
 from fastapi import FastAPI
 from hunter import find_email
 
-app = FastAPI(title="My Local API")
+app = FastAPI(title="Linkd Alumni Finder")
 
 def format_contacts(data):
     formatted_contacts = []
@@ -31,12 +31,23 @@ def format_contacts(data):
         formatted_contacts.append(formatted_contact)
     return formatted_contacts       
 
+def match_contact(contact: dict, query: str) -> bool:
+    """Basic case-insensitive keyword matching in name, title, company, location."""
+    query_lower = query.lower()
+    return (
+        query_lower in (contact.get('name') or '').lower()
+        or query_lower in (contact.get('title') or '').lower()
+        or query_lower in (contact.get('company') or '').lower()
+        or query_lower in (contact.get('location') or '').lower()
+    )
+
+
 @app.get("/contacts/{query}")
 def get_contacts_list(query, limit=10):
     # data = get_contacts(query, limit)
-    # return format_contacts(data)
+    # contacts = format_contacts(data)
     #API TOO EXPENSIVE LOL
-    return [{'name': 'Hector Enrique Muñoz, Ph.D.', 'title': 'Senior Machine Learning Scientist', 'company': 'Vir Biotechnology, Inc.', 'location': 'San Francisco Bay Area', 'linkedin_url': 'https://www.linkedin.com/in/ACwAAARg64YB0ve_eF0C23ZheO4XzlpEeTb4MlU', 'profile_picture_url': 'https://media.licdn.com/dms/image/v2/D5603AQGZGNjo7LyZYA/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1727791005820?e=1746057600&v=beta&t=1R73xI3B5i6Gk_4hnfJoitzfzy6l1eYjBsfaHPQVX_c', 'email': 'henrique-munoz@vir.bio'},
+    contacts =  [{'name': 'Hector Enrique Muñoz, Ph.D.', 'title': 'Senior Machine Learning Scientist', 'company': 'Vir Biotechnology, Inc.', 'location': 'San Francisco Bay Area', 'linkedin_url': 'https://www.linkedin.com/in/ACwAAARg64YB0ve_eF0C23ZheO4XzlpEeTb4MlU', 'profile_picture_url': 'https://media.licdn.com/dms/image/v2/D5603AQGZGNjo7LyZYA/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1727791005820?e=1746057600&v=beta&t=1R73xI3B5i6Gk_4hnfJoitzfzy6l1eYjBsfaHPQVX_c', 'email': 'henrique-munoz@vir.bio'},
             {'name': 'Jeffrey Chongsathien', 'title': 'Software Engineering Manager', 'company': 'Oxford Instruments', 'location': 'Bridgend, Wales, United Kingdom', 'linkedin_url': 'https://www.linkedin.com/in/ACwAAAHoQuwBz_kVII_c7c8atrABMU2KpptGGsQ', 'profile_picture_url': 'https://media.licdn.com/dms/image/v2/C4D03AQFpf4PRVEkg-A/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1626991622176?e=1745452800&v=beta&t=kiVTs81CHsBdWn_P6y4hVGomYsK-mjtJgcJUWxX5pt0', 'email': 'jeffrey.chongsathien@oxinst.com'},
             {'name': 'Edoardo Gabbi', 'title': 'Business Analyst', 'company': 'McKinsey & Company', 'location': 'Italy', 'linkedin_url': 'https://www.linkedin.com/in/ACwAACHm8OwBSMNGhbYUdGT5YsOxo5fCXJOWH8c', 'profile_picture_url': 'https://media.licdn.com/dms/image/v2/D4D03AQEvuds72oJ67g/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1675237503812?e=1745452800&v=beta&t=iNAZ4rHzOGN5XSRrrfzeYWyj6SnsMiV8iE7_FyCY4A8', 'email': 'edoardo_gabbi@mckinsey.com'},
             {'name': 'Louise Lehman', 'title': 'Software Engineer', 'company': 'Ambrook', 'location': 'United States', 'linkedin_url': 'https://www.linkedin.com/in/ACwAAA3KV8UBwKwXCHBBFca96Mtkr-zLnAxYJaE', 'profile_picture_url': 'https://media.licdn.com/dms/image/v2/C5603AQHwLjxEstgRlw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1619544544873?e=1745452800&v=beta&t=m3UalBpf6QCHCwQIbm5sb5NnoTEs3WQNC97jxqT_Ims', 'email': 'louise@ambrook.com'},
@@ -49,4 +60,8 @@ def get_contacts_list(query, limit=10):
             {'name': 'Giuliano Gabella', 'title': 'Software Engineer II', 'company': 'Udemy', 'location': 'Austin, Texas, United States', 'linkedin_url': 'https://www.linkedin.com/in/ACwAAAyfbBkBNUtKyRIG0lQrVY2l8dMXqA4I014', 'profile_picture_url': 'https://media.licdn.com/dms/image/v2/D5603AQFMosSj6znKrg/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1683325205277?e=1746057600&v=beta&t=au5x4nFVkGx3IQ_VVm1IS3trgiHiSn87XccwC6_lqqA', 'email': 'giuliano.gabella@udemy.com'},
             {'name': 'Lisa Cabadas', 'title': 'Technical Consultant', 'company': 'WiseTech Global', 'location': 'Perth, Western Australia, Australia', 'linkedin_url': 'https://www.linkedin.com/in/ACwAAC4Z2bQBGf_PZR0G2k9rhKMXegV2avlqACc', 'profile_picture_url': 'https://media.licdn.com/dms/image/v2/D5603AQFL54R_gWI4vA/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1691651137171?e=1744848000&v=beta&t=CuEqLgUHY8IhWTyU1EK9U0c8eE0tRcvcB9KVJIF5Hxw', 'email': 'lisa.cabadas@wisetechglobal.com'},
             {'name': 'Desiree Lenart', 'title': 'Senior Software Engineer, Frontend', 'company': 'Webflow', 'location': 'Los Angeles Metropolitan Area', 'linkedin_url': 'https://www.linkedin.com/in/ACwAABeRXgQBSCzKoVHdx2AEtIV3otPOdudsEpo', 'profile_picture_url': '', 'email': 'desiree.lenart@webflow.io'}]
-    
+
+    matching_contacts = [c for c in contacts if match_contact(c, query)]
+
+    # Apply limit
+    return matching_contacts[:limit]

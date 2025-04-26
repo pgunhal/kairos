@@ -1,6 +1,4 @@
-
 // server/controllers/emailController.js
-const emailService = require('../services/emailService');
 const Alumni = require('../models/Alumni');
 const EmailTemplate = require('../models/Email');
 const User = require('../models/User');
@@ -21,36 +19,103 @@ exports.getTemplates = async (req, res) => {
 };
 
 exports.createTemplate = async (req, res) => {
+  try {
+    const { name, subject, body } = req.body;
+
+    const template = await EmailTemplate.create({
+      name,
+      subject,
+      body,
+      createdBy: req.user.id,
+      isDefault: false
+    });
+
+    res.status(201).json(template);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+
+exports.sendEmail = async (req, res) => {
     try {
-      const { name, subject, body } = req.body;
+      const { alumniId, email, name, jobTitle, company, location, linkedin_url, templateId, searchId } = req.body;
   
-      const template = await EmailTemplate.create({
-        name,
-        subject,
-        body,
-        createdBy: req.user.id, // IMPORTANT: save the user who made it
-        isDefault: false
+      if (!email) {
+        return res.status(400).json({ message: 'Email address required.' });
+      }
+  
+      // Check if alumni already exists
+      let alumni = await Alumni.findOne({ email });
+  
+      if (alumni) {
+        // ✅ Check if this user already contacted them
+        const alreadyContacted = alumni.contactedBy.some(
+          contact => contact.userId.toString() === req.user.id
+        );
+  
+        if (alreadyContacted) {
+          return res.status(400).json({ message: 'You have already contacted this alumni.' });
+        }
+      } else {
+        // ✅ If alumni doesn't exist yet, create new
+        alumni = await Alumni.create({
+          name,
+          jobTitle,
+          company,
+          location,
+          email,
+          linkedin_url,
+          contactedBy: [],
+        });
+      }
+  
+      // Fetch template
+      const template = await EmailTemplate.findById(templateId);
+      if (!template) {
+        return res.status(404).json({ message: 'Template not found' });
+      }
+  
+      const user = await User.findById(req.user.id);
+  
+      // Replace placeholders
+      const subject = template.subject
+        .replace(/{{name}}/g, alumni.name)
+        .replace(/{{jobTitle}}/g, alumni.jobTitle)
+        .replace(/{{company}}/g, alumni.company)
+        .replace(/{{senderName}}/g, `${user.firstName} ${user.lastName}`);
+  
+      const body = template.body
+        .replace(/{{name}}/g, alumni.name)
+        .replace(/{{jobTitle}}/g, alumni.jobTitle)
+        .replace(/{{company}}/g, alumni.company)
+        .replace(/{{senderName}}/g, `${user.firstName} ${user.lastName}`);
+  
+      // Update contactedBy field
+      alumni.contactedBy.push({
+        userId: req.user.id,
+        timestamp: new Date()
       });
+      await alumni.save();
   
-      res.status(201).json(template);
+      res.json({ success: true, message: 'Email recorded and alumni saved', subject, body });
+  
     } catch (error) {
+      console.error(error);
       res.status(500).json({ message: 'Server error', error: error.message });
     }
   };
-  
   
 
 exports.draftEmail = async (req, res) => {
   try {
     const { alumniId, templateId } = req.body;
     
-    // Get alumni info
     const alumni = await Alumni.findById(alumniId);
     if (!alumni) {
       return res.status(404).json({ message: 'Alumni not found' });
     }
-    
-    // Get template
+
     let template;
     if (templateId) {
       template = await EmailTemplate.findById(templateId);
@@ -58,14 +123,12 @@ exports.draftEmail = async (req, res) => {
       template = await emailService.getDefaultTemplate();
     }
     
-    // Get user info
     const user = await User.findById(req.user.id);
-    
-    // Replace placeholders in template
+
     let subject = template.subject;
     let body = template.body
       .replace(/{{name}}/g, alumni.name)
-      .replace(/{{jobTitle}}/g, alumni.jobTitle)
+      .replace(/{{jobTitle}}/g, alumni.title)
       .replace(/{{company}}/g, alumni.company)
       .replace(/{{senderName}}/g, `${user.firstName} ${user.lastName}`);
     
@@ -79,96 +142,55 @@ exports.draftEmail = async (req, res) => {
   }
 };
 
-exports.sendEmail = async (req, res) => {
+exports.generateEmail = async (req, res) => {
+  const { role, company, experienceLevel, tone } = req.body;
+
+  const generatedBody = `
+    Hi {{name}},
+
+    I'm reaching out as a ${experienceLevel} candidate interested in ${role} opportunities at ${company}.
+    I'd love to connect and hear more about your experience!
+
+    Best,
+    {{senderName}}
+  `;
+
+  res.json({ body: generatedBody });
+};
+
+exports.updateTemplate = async (req, res) => {
   try {
-    const { alumniId, to, subject, body, searchId } = req.body;
-    
-    // Send email
-    const result = await emailService.sendEmail(to, subject, body);
-    
-    // Track contact in alumni record
-    if (alumniId) {
-      await Alumni.findByIdAndUpdate(
-        alumniId,
-        { 
-          $push: { 
-            contactedBy: { 
-              userId: req.user.id, 
-              timestamp: new Date() 
-            } 
-          } 
-        }
-      );
+    const { id } = req.params;
+    const { name, subject, body } = req.body;
+
+    const updated = await EmailTemplate.findByIdAndUpdate(
+      id,
+      { name, subject, body },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: 'Template not found' });
     }
-    
-    // Update search stats if searchId provided
-    if (searchId) {
-      await Search.findByIdAndUpdate(
-        searchId,
-        { $inc: { emailsSent: 1 } }
-      );
-    }
-    
-    res.json(result);
+
+    res.json(updated);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
+exports.deleteTemplate = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-exports.generateEmail = async (req, res) => {
-    const { role, company, experienceLevel, tone } = req.body;
+    const deleted = await EmailTemplate.findByIdAndDelete(id);
 
-    const generatedBody = `
-      Hi {{name}},
-  
-      I'm reaching out as a ${experienceLevel} candidate interested in ${role} opportunities at ${company}.
-      I'd love to connect and hear more about your experience!
-  
-      Best,
-      {{senderName}}
-    `;
-  
-    res.json({ body: generatedBody });
-  };
-  
-
-  // Update a template
-exports.updateTemplate = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { name, subject, body } = req.body;
-  
-      const updated = await EmailTemplate.findByIdAndUpdate(
-        id,
-        { name, subject, body },
-        { new: true }
-      );
-  
-      if (!updated) {
-        return res.status(404).json({ message: 'Template not found' });
-      }
-  
-      res.json(updated);
-    } catch (error) {
-      res.status(500).json({ message: 'Server error', error: error.message });
+    if (!deleted) {
+      return res.status(404).json({ message: 'Template not found' });
     }
-  };
-  
-  // Delete a template
-  exports.deleteTemplate = async (req, res) => {
-    try {
-      const { id } = req.params;
-  
-      const deleted = await EmailTemplate.findByIdAndDelete(id);
-  
-      if (!deleted) {
-        return res.status(404).json({ message: 'Template not found' });
-      }
-  
-      res.json({ message: 'Template deleted' });
-    } catch (error) {
-      res.status(500).json({ message: 'Server error', error: error.message });
-    }
-  };
-  
+
+    res.json({ message: 'Template deleted' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};

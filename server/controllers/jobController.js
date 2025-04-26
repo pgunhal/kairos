@@ -2,27 +2,25 @@
 // server/controllers/jobController.js
 const jobApiService = require('../services/jobApiService');
 const Search = require('../models/Search');
+const { fetchContactsFromFastAPI } = require('../utils/contactFetcher');
+
 
 exports.searchJobs = async (req, res) => {
-    try {
-      const { role, company, location } = req.body;
-  
-      const query = {};
-  
-      if (role) query.jobTitle = { $regex: role, $options: 'i' };
-      if (company) query.company = { $regex: company, $options: 'i' };
-      if (location) query.location = { $regex: location, $options: 'i' };
-  
-      // Eventually you can do: const jobs = await Alumni.find(query);
-  
-      // DUMMY response for now:
-      res.json({ search: "dummy-search-id", jobs: ["Software Engineer", "Software Engineer Intern", "ML Intern"] });
-  
-    } catch (error) {
-      res.status(500).json({ message: '1 error', error: error.message });
+  try {
+    const { role } = req.body; // Get the role from search form
+
+    if (!role) {
+      return res.status(400).json({ message: "Role is required" });
     }
-  };
-  
+
+    // Call alumniController to fetch matching alumni
+    const response = await alumniController.findAlumniByJobDirect(role);
+
+    res.json({ alumni: response });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};  
 
 exports.getSearchHistory = async (req, res) => {
   try {

@@ -36,6 +36,8 @@ app.use('/api/alumni', alumniRoutes);
 app.use('/api/emails', emailRoutes);
 app.use('/api/analytics', analyticsRoutes);
 
+
+
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);

@@ -10,7 +10,6 @@ router.post('/draft', protect, emailController.draftEmail);
 router.post('/send', protect, emailController.sendEmail);
 router.post('/generate', protect, emailController.generateEmail);
 
-
 // Update template
 router.put('/templates/:id', protect, emailController.updateTemplate);
 
