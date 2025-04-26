@@ -4,9 +4,12 @@ const jobController = require('../controllers/jobController');
 const alumniController = require('../controllers/alumniController');
 const { protect } = require('../middleware/authMiddleware');
 
-const { fetchContactsFromFastAPI } = require('../utils/contactFetcher'); // ✅
+const { fetchContactsFromFastAPI } = require('../utils/contactFetcher'); 
 
 router.get('/history', protect, jobController.getSearchHistory);
+
+router.post('/analytics/create-search', protect, jobController.createSearch); 
+
 
 // MAIN CORRECTED /search route
 router.post('/search', protect, async (req, res) => {
@@ -39,3 +42,4 @@ router.post('/search', protect, async (req, res) => {
 });
 
 module.exports = router;
+

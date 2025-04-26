@@ -1,5 +1,4 @@
 // src/pages/AlumniResultsPage.jsx
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import api from '../services/api';
@@ -9,6 +8,7 @@ import '../styles/AlumniResults.css';
 function AlumniResultsPage() {
   const location = useLocation();
   const alumniRaw = useMemo(() => location.state?.alumni || [], [location.state?.alumni]);
+  const searchId = location.state?.searchId; // ✅
 
   const [contacted, setContacted] = useState({});
   const [templates, setTemplates] = useState([]);
@@ -46,25 +46,20 @@ function AlumniResultsPage() {
         company: alum.company,
         location: alum.location,
         linkedin_url: alum.linkedin_url,
-        templateId: selectedTemplate
+        templateId: selectedTemplate,
+        searchId // ✅ Pass the searchId
       });
   
       setContacted(prev => ({ ...prev, [alum.email]: true }));
-  
     } catch (error) {
       if (error.response && error.response.status === 400) {
-        // Backend said user was already contacted
         alert(error.response.data.message || 'Already contacted.');
-  
-        // Mark as contacted to disable the button
         setContacted(prev => ({ ...prev, [alum.email]: true }));
       } else {
         console.error('Error contacting alumni:', error.message);
       }
     }
   };
-  
-  
 
   const confirmContactAll = () => {
     setShowConfirmModal(true);
@@ -75,7 +70,7 @@ function AlumniResultsPage() {
     setLoadingContactAll(true);
 
     for (const alum of alumniRaw) {
-      if (!contacted[alum._id]) {
+      if (!contacted[alum.email]) {
         await handleContact(alum);
       }
     }
@@ -107,7 +102,7 @@ function AlumniResultsPage() {
           alumniRaw.map((alum, idx) => (
             <div
               key={idx}
-              className={`alumni-card ${contacted[alum._id] ? 'contact-card' : ''}`}
+              className={`alumni-card ${contacted[alum.email] ? 'contact-card' : ''}`}
             >
               <div className="alumni-info">
                 <div className="alumni-details">
@@ -138,10 +133,10 @@ function AlumniResultsPage() {
                 )}
                 <button
                   className="contact-button"
-                  disabled={contacted[alum._id]}
+                  disabled={contacted[alum.email]}
                   onClick={() => handleContact(alum)}
                 >
-                  {contacted[alum._id] ? 'Contacted' : 'Contact'}
+                  {contacted[alum.email] ? 'Contacted' : 'Contact'}
                 </button>
               </div>
             </div>
