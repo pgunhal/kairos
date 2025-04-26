@@ -10,8 +10,8 @@ if not api_key:
 def find_email(full_name, company, api_key=api_key):
     url = "https://api.hunter.io/v2/email-finder"
     params = {
-        "company": "moveworks",
-        "full_name": "Rahul Natarajan",
+        "company": company,
+        "full_name": full_name,
         "api_key": api_key
     }
     
