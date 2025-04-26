@@ -1,79 +1,100 @@
-
-// client/src/pages/JobSearchPage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import '../styles/JobSearch.css';
 
 function JobSearchPage() {
-  const [query, setQuery] = useState('');
+  const [filters, setFilters] = useState({
+    role: '',
+    company: '',
+    location: ''
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSearch = async (e) => {
+  const handleChange = (e) => {
+    setFilters({
+      ...filters,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!query.trim()) {
-      setError('Please enter a job title');
-      return;
-    }
-    
     setLoading(true);
     setError('');
-    
+
     try {
-      await api.post('/api/jobs/search', { query });
-      navigate(`/alumni/${encodeURIComponent(query)}`);
-    } catch (error) {
-      setError('An error occurred. Please try again.');
+      await api.post('/api/jobs/search', filters);
+      navigate(`/alumni/${encodeURIComponent(filters.role || 'all')}`);
+    } catch (err) {
+      console.error('Error searching:', err);
+      setError('Something went wrong. Please try again.');
+    } finally {
       setLoading(false);
-      console.error('Search error:', error);
     }
   };
 
   return (
     <div className="job-search-container">
-      <h1>Find Alumni by Job Title</h1>
+      <h1>Find Alumni</h1>
       <p className="search-description">
-        Search for job titles to find alumni who work in those roles.
-        You'll be able to reach out to them for networking and career advice.
+        Search alumni by role, company, or location to build your network.
       </p>
-      
+
       {error && <div className="error-message">{error}</div>}
-      
-      <form className="search-form" onSubmit={handleSearch}>
+
+      <form className="search-form" onSubmit={handleSubmit}>
         <div className="search-input-group">
           <input
             type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Enter job title (e.g. Software Engineer, Data Scientist)"
-            required
+            name="role"
+            placeholder="Job Role (e.g. Software Engineer)"
+            value={filters.role}
+            onChange={handleChange}
           />
-          <button type="submit" className="btn btn-primary" disabled={loading}>
+          <input
+            type="text"
+            name="company"
+            placeholder="Company (e.g. Google)"
+            value={filters.company}
+            onChange={handleChange}
+          />
+          <input
+            type="text"
+            name="location"
+            placeholder="Location (e.g. San Francisco)"
+            value={filters.location}
+            onChange={handleChange}
+          />
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={loading}
+          >
             {loading ? 'Searching...' : 'Search'}
           </button>
         </div>
       </form>
-      
+
       <div className="search-tips">
         <h3>Search Tips</h3>
         <ul>
-          <li>Be specific with job titles for better results</li>
-          <li>Try different variations of the same job title</li>
-          <li>Include industry or specialization if relevant</li>
+          <li>Be specific with job titles (e.g., "Front-end Developer" instead of "Developer")</li>
+          <li>Try variations of company names (e.g., "Meta" and "Facebook")</li>
+          <li>Include city or region for more targeted results</li>
         </ul>
       </div>
-      
+
       <div className="popular-searches">
-        <h3>Popular Searches</h3>
+        <h3>Quick Picks</h3>
         <div className="search-tags">
-          <button onClick={() => setQuery('Software Engineer')}>Software Engineer</button>
-          <button onClick={() => setQuery('Data Scientist')}>Data Scientist</button>
-          <button onClick={() => setQuery('Product Manager')}>Product Manager</button>
-          <button onClick={() => setQuery('Marketing Manager')}>Marketing Manager</button>
-          <button onClick={() => setQuery('Financial Analyst')}>Financial Analyst</button>
+          <button type="button" onClick={() => setFilters({ role: 'Software Engineer', company: '', location: '' })}>Software Engineer</button>
+          <button type="button" onClick={() => setFilters({ role: 'Data Scientist', company: '', location: '' })}>Data Scientist</button>
+          <button type="button" onClick={() => setFilters({ role: 'Product Manager', company: '', location: '' })}>Product Manager</button>
+          <button type="button" onClick={() => setFilters({ role: '', company: 'Google', location: '' })}>Google</button>
+          <button type="button" onClick={() => setFilters({ role: '', company: '', location: 'New York' })}>New York</button>
         </div>
       </div>
     </div>
