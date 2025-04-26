@@ -4,6 +4,9 @@ const User = require('../models/User');
 const Search = require('../models/Search'); // ✅ don't forget
 const emailService = require('../services/emailService'); // ✅ added!
 
+const { generateEmailContent } = require('../services/geminiService');
+
+
 exports.getTemplates = async (req, res) => {
   try {
     const templates = await EmailTemplate.find({
@@ -65,19 +68,20 @@ exports.draftEmail = async (req, res) => {
   }
 };
 
+
 exports.generateEmail = async (req, res) => {
-  const { role, company, experienceLevel } = req.body;
-  const generatedBody = `
-    Hi {{name}},
+  try {
+    const { role, company, experienceLevel, tone = 'friendly' } = req.body;
 
-    I'm reaching out as a ${experienceLevel} candidate interested in ${role} opportunities at ${company}.
-    I'd love to connect and hear more about your experience!
+    const emailBody = await generateEmailContent(role, company, tone);
 
-    Best,
-    {{senderName}}
-  `;
-  res.json({ body: generatedBody });
+    res.json({ body: emailBody });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error generating AI email', error: error.message });
+  }
 };
+
 
 exports.updateTemplate = async (req, res) => {
   try {
@@ -159,7 +163,7 @@ exports.sendEmail = async (req, res) => {
       .replace(/{{company}}/g, alumni.company)
       .replace(/{{senderName}}/g, `${user.firstName} ${user.lastName}`);
 
-    const emailResult = await emailService.sendEmail(email, subject, body);
+    const emailResult = await emailService.sendEmail(req.user.id, user.email, email, subject, body);
 
     alumni.contactedBy.push({
       userId: req.user.id,
