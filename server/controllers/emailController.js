@@ -15,6 +15,8 @@ exports.getTemplates = async (req, res) => {
   }
 };
 
+
+
 exports.createTemplate = async (req, res) => {
   try {
     const { name, subject, body } = req.body;
