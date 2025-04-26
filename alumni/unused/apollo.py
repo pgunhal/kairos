@@ -23,7 +23,7 @@ def post_request(url, params, api_key):
         print(f"Request failed: {response.status_code} {response.text}")
         return None
 
-def get_email(linkedin, api_key):
+def get_email(linkedin, api_key=api_key):
     url = "https://api.apollo.io/api/v1/people/match"
     params = {
       "linkedin_url": linkedin,
@@ -31,3 +31,11 @@ def get_email(linkedin, api_key):
     response = post_request(url, params, api_key)
     email = response.get('person', {}).get('contact', {}).get('email', '')
     return email
+
+def main():
+    linkedin_url = "https://www.linkedin.com/in/rahul-natarajan-361269173/"
+    email = get_email(linkedin_url)
+    print(f"Email for {linkedin_url}: {email}")
+    
+if __name__ == "__main__":
+    main()

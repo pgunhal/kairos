@@ -21,21 +21,24 @@ exports.getTemplates = async (req, res) => {
 };
 
 exports.createTemplate = async (req, res) => {
-  try {
-    const { name, subject, body } = req.body;
-    
-    const template = await EmailTemplate.create({
-      name,
-      subject,
-      body,
-      createdBy: req.user.id
-    });
-    
-    res.status(201).json(template);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-};
+    try {
+      const { name, subject, body } = req.body;
+  
+      const template = await EmailTemplate.create({
+        name,
+        subject,
+        body,
+        createdBy: req.user.id, // IMPORTANT: save the user who made it
+        isDefault: false
+      });
+  
+      res.status(201).json(template);
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  };
+  
+  
 
 exports.draftEmail = async (req, res) => {
   try {
@@ -111,3 +114,61 @@ exports.sendEmail = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
+
+exports.generateEmail = async (req, res) => {
+    const { role, company, experienceLevel, tone } = req.body;
+
+    const generatedBody = `
+      Hi {{name}},
+  
+      I'm reaching out as a ${experienceLevel} candidate interested in ${role} opportunities at ${company}.
+      I'd love to connect and hear more about your experience!
+  
+      Best,
+      {{senderName}}
+    `;
+  
+    res.json({ body: generatedBody });
+  };
+  
+
+  // Update a template
+exports.updateTemplate = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, subject, body } = req.body;
+  
+      const updated = await EmailTemplate.findByIdAndUpdate(
+        id,
+        { name, subject, body },
+        { new: true }
+      );
+  
+      if (!updated) {
+        return res.status(404).json({ message: 'Template not found' });
+      }
+  
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  };
+  
+  // Delete a template
+  exports.deleteTemplate = async (req, res) => {
+    try {
+      const { id } = req.params;
+  
+      const deleted = await EmailTemplate.findByIdAndDelete(id);
+  
+      if (!deleted) {
+        return res.status(404).json({ message: 'Template not found' });
+      }
+  
+      res.json({ message: 'Template deleted' });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  };
+  

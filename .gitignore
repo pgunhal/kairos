@@ -2,3 +2,4 @@ server/.env
 .env
 .DS_Store
 node_modules/
+venv
