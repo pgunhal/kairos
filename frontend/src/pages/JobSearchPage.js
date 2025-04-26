@@ -24,10 +24,15 @@ function JobSearchPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
-
+  
     try {
-      await api.post('/api/jobs/search', filters);
-      navigate(`/alumni/${encodeURIComponent(filters.role || 'all')}`);
+      const res = await api.post('/api/jobs/search', filters);
+      console.log('Response from backend:', res.data);
+  
+      navigate(`/alumni/${encodeURIComponent(filters.role || 'all')}`, {
+        state: { jobs: res.data.jobs.filter(job => job.toLowerCase().includes(filters.role.toLowerCase()))
+        }
+      });
     } catch (err) {
       console.error('Error searching:', err);
       setError('Something went wrong. Please try again.');
@@ -35,6 +40,7 @@ function JobSearchPage() {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="job-search-container">
