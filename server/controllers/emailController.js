@@ -78,16 +78,16 @@ exports.draftEmail = async (req, res) => {
 
 exports.sendEmail = async (req, res) => {
   try {
-    const { alumniId, to, subject, body, searchId } = req.body;
+    const { alumniId, from, to, subject, body, searchId } = req.body;
     
     // Send email
-    const result = await emailService.sendEmail(to, subject, body);
+    const result = await emailService.sendEmail(req.user.id, from, to, subject, body);
     
     // Track contact in alumni record
     if (alumniId) {
       await Alumni.findByIdAndUpdate(
         alumniId,
-        { 
+        {
           $push: { 
             contactedBy: { 
               userId: req.user.id, 

@@ -40,7 +40,6 @@ app.post('/send-email', async (req, res) => {
             to,
             subject,
             text,
-            html
         } = req.body;
 
         if (!userId || !sender || !to || !subject) {
@@ -49,7 +48,7 @@ app.post('/send-email', async (req, res) => {
 
         // Get refresh token from MongoDB
         const db = mongoClient.db('test');
-        const tokensCollection = db.collection('refreshtokens');
+        const tokensCollection = db.collection('mailboxes');
         
         console.log('Looking up refresh token for userId:', userId);
         const tokenDoc = await tokensCollection.findOne({ 
@@ -81,11 +80,11 @@ app.post('/send-email', async (req, res) => {
             const messageParts = [
                 `From: ${sender}`,
                 `To: ${to}`,
-                'Content-Type: text/html; charset=utf-8',
+                'Content-Type: text/plain; charset=utf-8',
                 'MIME-Version: 1.0',
                 `Subject: ${utf8Subject}`,
                 '',
-                html || text
+                text
             ];
             const message = messageParts.join('\n');
 

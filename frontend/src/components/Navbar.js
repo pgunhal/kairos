@@ -1,4 +1,3 @@
-
 // client/src/components/Navbar.js
 import React, { useContext } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -46,6 +45,7 @@ function Navbar() {
           <Link to="/search" className={`nav-link ${isActive('/search')}`}>Search</Link>
           <Link to="/templates" className={`nav-link ${isActive('/templates')}`}>Templates</Link>
           <Link to="/analytics" className={`nav-link ${isActive('/analytics')}`}>Analytics</Link>
+          <Link to="/link-mailbox" className={`nav-link ${isActive('/link-mailbox')}`}>Link Mailbox</Link>
           <button className="logout-btn" onClick={handleLogout}>Logout</button>
         </div>
       </div>
