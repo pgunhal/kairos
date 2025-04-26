@@ -1,40 +1,33 @@
-import asyncio 
-import websockets
 from dotenv import load_dotenv
-import json 
+import requests
 import os
 
 load_dotenv()
+api_key = os.getenv("LINKD_API_KEY")
+if not api_key:
+    raise ValueError("LINKD_API_KEY is not set in the .env file.")
 
-async def connect_to_websocket():
-    uri = f"wss://search.linkd.inc/api/search/ws"
-    api_key = os.getenv("LINKD_API_KEY")
-    if not api_key:
-        raise ValueError("API_KEY is not set in the .env file.")
-    headers = {"Authorization": f"Bearer {api_key}"}
-    websocket = await websockets.connect(uri, extra_headers=headers)
-    print("Connected to WebSocket")
-    return websocket 
-
-async def send_request(websocket, query, limit=30):
-    request = {
+def send_request(query, limit=30):
+    url = "https://search.linkd.inc/api/search/users"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+    }
+    params = {
         "query": query,
         "limit": limit, 
     }
-    await websocket.send(json.dumps(request))
-    response = await websocket.recv()
-    print("Received response:", response)
+    response = requests.get(url, headers=headers, params=params)
+    if response.ok:
+        print("Response JSON:", response.json())
+    else:
+        print(f"Request failed: {response.status_code} {response.text}")
     return response
 
-async def main():
-    websocket = await connect_to_websocket()
-    try:
-        query = "software engineer"
-        limit = 30
-        response = await send_request(websocket, query, limit)
-        print("Response:", response)
-    finally:
-        await websocket.close()
-        print("WebSocket closed")
-if __name__ == "__main__":
-    asyncio.run(main())
+
+# def main():
+#     query = "software engineer"
+#     response = send_request(query=query, limit=1)
+#     print("Full Response Object:", response)
+    
+# if __name__ == "__main__":
+#     main()
