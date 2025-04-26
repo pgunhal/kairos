@@ -1,0 +1,75 @@
+.profile-page {
+    display: flex;
+    padding: 40px;
+    background: #f8f9fb;
+    min-height: 100vh;
+  }
+  
+  .profile-card {
+    flex: 1;
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    margin-right: 20px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0,0,0,0.08);
+  }
+  
+  .profile-picture-container {
+    margin-bottom: 20px;
+  }
+  
+  .profile-picture {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .empty-picture {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .edit-form {
+    flex: 2;
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.08);
+  }
+  
+  .edit-form form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .edit-form input {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .edit-form button {
+    margin-top: 10px;
+    padding: 10px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+  }
+  
+  .mailbox-widget {
+    margin-top: 30px;
+    background: #f1f3f5;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+  }
+  

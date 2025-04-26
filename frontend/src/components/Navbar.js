@@ -45,7 +45,8 @@ function Navbar() {
           <Link to="/search" className={`nav-link ${isActive('/search')}`}>Search</Link>
           <Link to="/templates" className={`nav-link ${isActive('/templates')}`}>Templates</Link>
           <Link to="/analytics" className={`nav-link ${isActive('/analytics')}`}>Analytics</Link>
-          <Link to="/link-mailbox" className={`nav-link ${isActive('/link-mailbox')}`}>Link Mailbox</Link>
+          <Link to="/profile" className={`nav-link ${isActive('/profile')}`}>Profile</Link>
+          {/* <Link to="/link-mailbox" className={`nav-link ${isActive('/link-mailbox')}`}>Link Mailbox</Link> */}
           <button className="logout-btn" onClick={handleLogout}>Logout</button>
         </div>
       </div>

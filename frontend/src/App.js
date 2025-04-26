@@ -11,6 +11,7 @@ import DashboardPage from './pages/DashboardPage';
 import JobSearchPage from './pages/JobSearchPage';
 import AlumniResultsPage from './pages/AlumniResultsPage';
 import EmailSuggestionsPage from './pages/EmailSuggestionsPage';
+import ProfilePage from './pages/ProfilePage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import LinkMailboxPage from './pages/LinkMailboxPage';
 import GoogleAuthCallback from './pages/GoogleAuthCallback';
@@ -53,6 +54,11 @@ function App() {
                 <Route path="/analytics" element={
                   <PrivateRoute>
                     <AnalyticsPage />
+                  </PrivateRoute>
+                } />
+                <Route path="/profile" element={
+                  <PrivateRoute>
+                    <ProfilePage />
                   </PrivateRoute>
                 } />
                 <Route path="/link-mailbox" element={

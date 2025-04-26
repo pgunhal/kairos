@@ -21,8 +21,11 @@ exports.sendEmail = async (userId, from, to, subject, body) => {
     });
 
     if (!tokenDoc || !tokenDoc.refreshToken) {
-      throw new Error('Refresh token not found for user');
-    }
+        const error = new Error('Mailbox not connected');
+        error.code = 'MAILBOX_NOT_CONNECTED';
+        throw error;
+      }
+      
 
     const oauth2Client = new OAuth2Client(
       process.env.GOOGLE_CLIENT_ID,
@@ -65,7 +68,12 @@ exports.sendEmail = async (userId, from, to, subject, body) => {
     return { success: true, messageId: result.data.id };
 
   } catch (error) {
-    throw new Error(`Email API error: ${error.message}`);
+
+        error = new Error('Mailbox not connected');
+        error.code = 'MAILBOX_NOT_CONNECTED';
+        throw error;
+
+    // throw new Error(`Email API error: ${error.message}`);
   }
 };
 

@@ -22,6 +22,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+
+  linkedinUrl: { type: String },
+  university: { type: String },
+  phone: { type: String },
+  industry: { type: String },
+
+  profileImage: { type: String }, // URL to uploaded profile pic (can be stored on your server or any cloud storage)
+headline: { type: String },     // Like "Product Designer" or "Software Engineer"
+address: { type: String },      // optional
+birthday: { type: Date },       // optional
+gender: { type: String } ,       // optional ("Male", "Female", "Other")
+
   createdAt: {
     type: Date,
     default: Date.now
