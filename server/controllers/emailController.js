@@ -37,75 +37,6 @@ exports.createTemplate = async (req, res) => {
 };
 
 
-exports.sendEmail = async (req, res) => {
-    try {
-      const { alumniId, email, name, jobTitle, company, location, linkedin_url, templateId, searchId } = req.body;
-  
-      if (!email) {
-        return res.status(400).json({ message: 'Email address required.' });
-      }
-  
-      // Check if alumni already exists
-      let alumni = await Alumni.findOne({ email });
-  
-      if (alumni) {
-        // ✅ Check if this user already contacted them
-        const alreadyContacted = alumni.contactedBy.some(
-          contact => contact.userId.toString() === req.user.id
-        );
-  
-        if (alreadyContacted) {
-          return res.status(400).json({ message: 'You have already contacted this alumni.' });
-        }
-      } else {
-        // ✅ If alumni doesn't exist yet, create new
-        alumni = await Alumni.create({
-          name,
-          jobTitle,
-          company,
-          location,
-          email,
-          linkedin_url,
-          contactedBy: [],
-        });
-      }
-  
-      // Fetch template
-      const template = await EmailTemplate.findById(templateId);
-      if (!template) {
-        return res.status(404).json({ message: 'Template not found' });
-      }
-  
-      const user = await User.findById(req.user.id);
-  
-      // Replace placeholders
-      const subject = template.subject
-        .replace(/{{name}}/g, alumni.name)
-        .replace(/{{jobTitle}}/g, alumni.jobTitle)
-        .replace(/{{company}}/g, alumni.company)
-        .replace(/{{senderName}}/g, `${user.firstName} ${user.lastName}`);
-  
-      const body = template.body
-        .replace(/{{name}}/g, alumni.name)
-        .replace(/{{jobTitle}}/g, alumni.jobTitle)
-        .replace(/{{company}}/g, alumni.company)
-        .replace(/{{senderName}}/g, `${user.firstName} ${user.lastName}`);
-  
-      // Update contactedBy field
-      alumni.contactedBy.push({
-        userId: req.user.id,
-        timestamp: new Date()
-      });
-      await alumni.save();
-  
-      res.json({ success: true, message: 'Email recorded and alumni saved', subject, body });
-  
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server error', error: error.message });
-    }
-  };
-  
 
 exports.draftEmail = async (req, res) => {
   try {
@@ -141,6 +72,7 @@ exports.draftEmail = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 exports.generateEmail = async (req, res) => {
   const { role, company, experienceLevel, tone } = req.body;
@@ -194,3 +126,78 @@ exports.deleteTemplate = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
+
+
+exports.sendEmail = async (req, res) => {
+    try {
+      const { alumniId, email, name, jobTitle, company, location, linkedin_url, templateId, searchId } = req.body;
+  
+      if (!email) {
+        return res.status(400).json({ message: 'Email address required.' });
+      }
+  
+      // Check if alumni already exists
+      let alumni = await Alumni.findOne({ email });
+  
+      if (alumni) {
+        const alreadyContacted = alumni.contactedBy.some(
+          contact => contact.userId.toString() === req.user.id
+        );
+  
+        if (alreadyContacted) {
+          return res.status(400).json({ message: 'You have already contacted this alumni.' });
+        }
+      } else {
+        alumni = await Alumni.create({
+          name,
+          jobTitle,
+          company,
+          location,
+          email,
+          linkedin_url,
+          contactedBy: [],
+        });
+      }
+  
+      // Fetch template
+      const template = await EmailTemplate.findById(templateId);
+      if (!template) {
+        return res.status(404).json({ message: 'Template not found' });
+      }
+  
+      const user = await User.findById(req.user.id);
+  
+      // Replace placeholders
+      const subject = template.subject
+        .replace(/{{name}}/g, alumni.name)
+        .replace(/{{jobTitle}}/g, alumni.jobTitle)
+        .replace(/{{company}}/g, alumni.company)
+        .replace(/{{senderName}}/g, `${user.firstName} ${user.lastName}`);
+  
+      const body = template.body
+        .replace(/{{name}}/g, alumni.name)
+        .replace(/{{jobTitle}}/g, alumni.jobTitle)
+        .replace(/{{company}}/g, alumni.company)
+        .replace(/{{senderName}}/g, `${user.firstName} ${user.lastName}`);
+  
+      const emailResult = await emailService.sendEmail(email, subject, body);
+  
+      alumni.contactedBy.push({
+        userId: req.user.id,
+        timestamp: new Date()
+      });
+      await alumni.save();
+  
+      if (searchId) {
+        await Search.findByIdAndUpdate(searchId, { $inc: { emailsSent: 1 } });
+      }
+  
+      res.json({ success: true, message: 'Email sent, alumni saved', result: emailResult });
+  
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  };
+  
