@@ -2,14 +2,25 @@
 const axios = require('axios');
 const EmailTemplate = require('../models/Email');
 
-// This is a placeholder for your email API service
-// Replace with actual email API (SendGrid, Mailgun, etc.)
-exports.sendEmail = async (to, subject, body) => {
+exports.sendEmail = async (userId, from, to, subject, body) => {
   try {
     // Mock email sending - replace with actual API call
+    console.log(`Sending email from: ${from}`);
     console.log(`Sending email to: ${to}`);
     console.log(`Subject: ${subject}`);
     console.log(`Body: ${body}`);
+
+    const res = await axios.post(process.env.EMAIL_API_URL, {
+      userId,
+      from,
+      to,
+      subject,
+      body
+    });
+
+    if (res.status !== 200) {
+      throw new Error(`Failed to send email: ${res.statusText}`);
+    }
     
     // Return success response
     return { success: true, messageId: `mock-${Date.now()}` };
