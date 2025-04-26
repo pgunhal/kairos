@@ -3,19 +3,39 @@ const express = require('express');
 const cors = require('cors');
 const { OAuth2Client } = require('google-auth-library');
 const { google } = require('googleapis');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
+const mongoClient = new MongoClient(process.env.MONGODB_URI, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    }
+  });
+
+// Connect to MongoDB
+async function connectDB() {
+    try {
+        await mongoClient.connect();
+        console.log('Connected to MongoDB');
+    } catch (err) {
+        console.error('MongoDB connection error:', err);
+        process.exit(1);
+    }
+}
+connectDB();
 
 app.post('/send-email', async (req, res) => {
     console.log('Received request body:', req.body);
     
     try {
         const {
-            refreshToken,
+            userId,
             sender,
             to,
             subject,
@@ -23,8 +43,21 @@ app.post('/send-email', async (req, res) => {
             html
         } = req.body;
 
-        if (!refreshToken || !sender || !to || !subject) {
+        if (!userId || !sender || !to || !subject) {
             throw new Error('Missing required fields');
+        }
+
+        // Get refresh token from MongoDB
+        const db = mongoClient.db('test');
+        const tokensCollection = db.collection('refreshtokens');
+        
+        console.log('Looking up refresh token for userId:', userId);
+        const tokenDoc = await tokensCollection.findOne({ 
+            userId: ObjectId.createFromHexString(userId)
+        });
+
+        if (!tokenDoc || !tokenDoc.refreshToken) {
+            throw new Error('Refresh token not found for user');
         }
 
         console.log('Creating OAuth2 client...');
@@ -36,7 +69,7 @@ app.post('/send-email', async (req, res) => {
 
         console.log('Setting credentials...');
         oauth2Client.setCredentials({
-            refresh_token: refreshToken
+            refresh_token: tokenDoc.refreshToken
         });
 
         try {
@@ -102,11 +135,18 @@ app.post('/send-email', async (req, res) => {
     }
 });
 
+// Graceful shutdown
+process.on('SIGINT', async () => {
+    await mongoClient.close();
+    process.exit(0);
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     console.log('Environment variables loaded:', {
         clientId: process.env.GOOGLE_CLIENT_ID ? 'Set' : 'Missing',
         clientSecret: process.env.GOOGLE_CLIENT_SECRET ? 'Set' : 'Missing',
-        redirectUri: process.env.GOOGLE_REDIRECT_URI ? 'Set' : 'Missing'
+        redirectUri: process.env.GOOGLE_REDIRECT_URI ? 'Set' : 'Missing',
+        mongoUri: process.env.MONGODB_URI ? 'Set' : 'Missing'
     });
 });
