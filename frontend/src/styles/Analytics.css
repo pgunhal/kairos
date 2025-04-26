@@ -1,28 +1,54 @@
-
-/* client/src/styles/Analytics.css */
 .analytics-container {
-    padding: 20px 0;
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
   }
   
   .analytics-summary {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
-    margin-bottom: 30px;
+    margin-bottom: 40px;
   }
   
-  .chart-container {
+  .metric-card {
     background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     padding: 20px;
-    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
   
-  .search-history {
+  .metric-card h3 {
+    margin-bottom: 8px;
+    font-size: 20px;
+    color: #34495e;
+  }
+  
+  .metric-card p {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+  }
+  
+  .section-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #2c3e50;
+  }
+  
+  .chart-container,
+  .search-history,
+  .goal-tracker {
     background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 25px;
+    margin-bottom: 30px;
   }
   
   .history-table {
@@ -33,14 +59,15 @@
   
   .history-table th,
   .history-table td {
-    padding: 12px 15px;
+    padding: 14px 18px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #eee;
   }
   
   .history-table th {
-    background-color: #f8f9fa;
-    font-weight: 500;
+    background-color: #f5f7fa;
+    font-weight: 600;
+    font-size: 15px;
     color: #34495e;
   }
   
@@ -49,14 +76,32 @@
   }
   
   .history-table tr:hover {
-    background-color: #f8f9fa;
+    background-color: #f1f3f5;
   }
-
+  
   .goal-tracker {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    margin-top: 20px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .goal-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .goal-progress {
+    background-color: #f1f5f9;
+    height: 8px;
+    border-radius: 4px;
+    width: 70%;
+    overflow: hidden;
+  }
+  
+  .goal-progress-bar {
+    height: 100%;
+    background-color: #3498db;
+    width: 50%; /* example width, dynamic */
   }
   

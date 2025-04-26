@@ -1,3 +1,4 @@
+// src/pages/JobSearchPage.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
@@ -26,13 +27,23 @@ function JobSearchPage() {
     setError('');
   
     try {
+      // 1. Search for alumni
       const res = await api.post('/api/jobs/search', filters);
-      console.log('Response from backend:', res.data);
-  
-      navigate(`/alumni/${encodeURIComponent(filters.role || 'all')}`, {
-        state: { jobs: res.data.jobs.filter(job => job.toLowerCase().includes(filters.role.toLowerCase()))
-        }
+      const alumni = res.data.alumni || [];
+
+      // 2. Create search record
+      const searchRes = await api.post('/api/jobs/analytics/create-search', {
+        jobTitle: filters.role,
+        resultsCount: alumni.length,
       });
+
+      const searchId = searchRes.data._id;
+
+      // 3. Navigate with alumni + searchId
+      navigate(`/alumni/${encodeURIComponent(filters.role || 'all')}`, {
+        state: { alumni, searchId }
+      });
+
     } catch (err) {
       console.error('Error searching:', err);
       setError('Something went wrong. Please try again.');
@@ -40,7 +51,6 @@ function JobSearchPage() {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="job-search-container">
@@ -74,11 +84,7 @@ function JobSearchPage() {
             value={filters.location}
             onChange={handleChange}
           />
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={loading}
-          >
+          <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? 'Searching...' : 'Search'}
           </button>
         </div>

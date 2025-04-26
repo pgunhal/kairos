@@ -1,22 +1,74 @@
-// server/services/emailService.js
-const axios = require('axios');
-const EmailTemplate = require('../models/Email');
+const { OAuth2Client } = require('google-auth-library');
+const { google } = require('googleapis');
+const { MongoClient, ObjectId } = require('mongodb');
 
-// This is a placeholder for your email API service
-// Replace with actual email API (SendGrid, Mailgun, etc.)
-exports.sendEmail = async (to, subject, body) => {
+// Setup MongoDB connection
+const mongoClient = new MongoClient(process.env.MONGODB_URI);
+mongoClient.connect();
+
+exports.sendEmail = async (userId, from, to, subject, body) => {
   try {
-    // Mock email sending - replace with actual API call
+    console.log(`Sending email from: ${from}`);
     console.log(`Sending email to: ${to}`);
     console.log(`Subject: ${subject}`);
     console.log(`Body: ${body}`);
+
+    const db = mongoClient.db('test');
+    const tokensCollection = db.collection('mailboxes');
     
-    // Return success response
-    return { success: true, messageId: `mock-${Date.now()}` };
+    const tokenDoc = await tokensCollection.findOne({ 
+      userId: ObjectId.createFromHexString(userId)
+    });
+
+    if (!tokenDoc || !tokenDoc.refreshToken) {
+      throw new Error('Refresh token not found for user');
+    }
+
+    const oauth2Client = new OAuth2Client(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_REDIRECT_URI
+    );
+
+    oauth2Client.setCredentials({
+      refresh_token: tokenDoc.refreshToken
+    });
+
+    const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+    const utf8Subject = `=?utf-8?B?${Buffer.from(subject).toString('base64')}?=`;
+    const messageParts = [
+      `From: ${from}`,
+      `To: ${to}`,
+      'Content-Type: text/plain; charset=utf-8',
+      'MIME-Version: 1.0',
+      `Subject: ${utf8Subject}`,
+      '',
+      body
+    ];
+    const message = messageParts.join('\n');
+
+    const encodedMessage = Buffer.from(message)
+      .toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+
+    const result = await gmail.users.messages.send({
+      userId: 'me',
+      requestBody: {
+        raw: encodedMessage,
+      }
+    });
+
+    console.log('Email sent successfully:', result.data);
+    return { success: true, messageId: result.data.id };
+
   } catch (error) {
     throw new Error(`Email API error: ${error.message}`);
   }
 };
+
 
 exports.getDefaultTemplate = async () => {
   try {

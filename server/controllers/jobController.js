@@ -1,38 +1,45 @@
-
-// server/controllers/jobController.js
-const jobApiService = require('../services/jobApiService');
 const Search = require('../models/Search');
+const alumniController = require('./alumniController');
+const { fetchContactsFromFastAPI } = require('../utils/contactFetcher');
 
 exports.searchJobs = async (req, res) => {
-    try {
-      const { role, company, location } = req.body;
-  
-      const query = {};
-  
-      if (role) query.jobTitle = { $regex: role, $options: 'i' };
-      if (company) query.company = { $regex: company, $options: 'i' };
-      if (location) query.location = { $regex: location, $options: 'i' };
-  
-      // Eventually you can do: const jobs = await Alumni.find(query);
-  
-      // DUMMY response for now:
-      res.json({ search: "dummy-search-id", jobs: ["Software Engineer", "Software Engineer Intern", "ML Intern"] });
-  
-    } catch (error) {
-      res.status(500).json({ message: '1 error', error: error.message });
+  try {
+    const { role } = req.body;
+    if (!role) {
+      return res.status(400).json({ message: "Role is required" });
     }
-  };
-  
+
+    const alumni = await alumniController.findAlumniByJobDirect(role);
+    res.json({ alumni });
+
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
 
 exports.getSearchHistory = async (req, res) => {
   try {
-    // const searches = await Search.find({ userId: req.user.id })
-    //   .sort({ timestamp: -1 });
-    
-    // res.json(searches);
-    res.json({search: search._id, jobs: ["SDE Intern", "ML Intern"]});
-
+    const searches = await Search.find({ userId: req.user.id })
+      .sort({ timestamp: -1 });
+    res.json(searches);
   } catch (error) {
-    res.status(500).json({ message: '2 error', error: error.message });
+    res.status(500).json({ message: 'Error fetching history', error: error.message });
+  }
+};
+
+// ✨ NEW: Create a Search record when user searches
+exports.createSearch = async (req, res) => {
+  try {
+    const { jobTitle, resultsCount } = req.body;
+    const search = await Search.create({
+      userId: req.user.id,
+      jobTitle,
+      resultsCount,
+      emailsSent: 0,
+      timestamp: new Date()
+    });
+    res.status(201).json(search);
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating search', error: error.message });
   }
 };

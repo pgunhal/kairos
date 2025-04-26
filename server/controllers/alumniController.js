@@ -2,27 +2,32 @@
 // server/controllers/alumniController.js
 const Alumni = require('../models/Alumni');
 
+const { fetchContactsFromFastAPI } = require('../utils/contactFetcher');
+
 exports.findAlumniByJob = async (req, res) => {
   try {
     const { jobTitle } = req.params;
-    
-    // Find alumni with matching job title
-    const alumni = await Alumni.find({ 
-      jobTitle: { $regex: jobTitle, $options: 'i' } 
-    });
-    
-    // Update search results count
+
+    // Instead of MongoDB, fetch from FastAPI
+    const alumni = await fetchContactsFromFastAPI(jobTitle);
+
+    // (Optional: you can log this)
+    console.log('Alumni fetched from FastAPI:', alumni);
+
+    // You can still update Search if needed
     if (req.query.searchId) {
       await Search.findByIdAndUpdate(req.query.searchId, {
         resultsCount: alumni.length
       });
     }
-    
+
     res.json({ alumni });
   } catch (error) {
+    console.error('Error in findAlumniByJob:', error.message);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 exports.trackAlumniContact = async (req, res) => {
   try {
@@ -54,4 +59,9 @@ exports.trackAlumniContact = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
+};
+
+exports.findAlumniByJobDirect = async (jobTitle) => {
+  const alumni = await fetchContactsFromFastAPI(jobTitle);
+  return alumni;
 };
