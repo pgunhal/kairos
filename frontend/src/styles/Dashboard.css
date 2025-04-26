@@ -1,0 +1,92 @@
+
+/* client/src/styles/Dashboard.css */
+.dashboard-container {
+    padding: 20px 0;
+  }
+  
+  .dashboard-stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  
+  .stat-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    flex: 1;
+  }
+  
+  .stat-card h3 {
+    font-size: 18px;
+    color: #7f8c8d;
+    margin-bottom: 10px;
+  }
+  
+  .stat-number {
+    font-size: 36px;
+    font-weight: bold;
+    color: #2c3e50;
+  }
+  
+  .dashboard-actions {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  
+  .action-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    flex: 1;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.3s ease;
+  }
+  
+  .action-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  }
+  
+  .action-card h3 {
+    color: #3498db;
+    margin-bottom: 10px;
+  }
+  
+  .recent-searches {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+  }
+  
+  .search-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .search-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-radius: 6px;
+    background-color: #f8f9fa;
+  }
+  
+  .search-info h4 {
+    margin-bottom: 5px;
+    color: #2c3e50;
+  }
+  
+  .search-info p {
+    font-size: 14px;
+    color: #7f8c8d;
+  }
+  
+  
