@@ -1,0 +1,70 @@
+/* client/src/styles/EmailTemplate.css */
+.email-template-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .template-actions {
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .template-form-container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 30px;
+  }
+  
+  .template-form-container h2 {
+    margin-bottom: 20px;
+  }
+  
+  .template-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  
+  .template-card h3 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+  }
+  
+  .template-details {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .template-field label {
+    font-weight: 500;
+    color: #7f8c8d;
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .template-field pre {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    white-space: pre-wrap;
+    font-family: inherit;
+    color: #34495e;
+  }
+  
+  .default-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: #f39c12;
+    color: white;
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 4px;
+  }
