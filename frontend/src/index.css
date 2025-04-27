@@ -4,6 +4,9 @@ html, body, #root {
   height: 100%;
   width: 100%;
   box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  font-family: 'Circular', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif; /* Added Circular font stack */
 }
 
 *, *::before, *::after {
@@ -12,11 +15,10 @@ html, body, #root {
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  /* Font family moved to html, body, #root for better inheritance */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f7f7f7; /* Lighter background like Airbnb */
 }
 
 code {

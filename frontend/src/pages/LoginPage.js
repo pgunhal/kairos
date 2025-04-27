@@ -31,7 +31,7 @@ function LoginPage() {
         <div style={styles.branding}>
           <img src={logo} alt="Kairos Logo" style={styles.logo} />
           <h1 style={styles.brandName}>Kairos</h1>
-          <p style={styles.brandTagline}>Connect with opportunity.</p>
+          <p style={styles.brandTagline}>Connecting the right people at the right time.</p>
         </div>
       </div>
 
@@ -118,9 +118,9 @@ const styles = {
     width: '100%',
     maxWidth: '400px',
     padding: '40px',
-    borderRadius: '8px',
+    borderRadius: '16px', // Increased border radius
     backgroundColor: '#fff',
-    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)', // Softer shadow
   },
   heading: {
     textAlign: 'center',
@@ -143,20 +143,21 @@ const styles = {
   },
   input: {
     width: '100%',
-    padding: '10px',
+    padding: '12px', // Slightly increased padding
     fontSize: '14px',
     border: '1px solid #ccc',
-    borderRadius: '5px',
+    borderRadius: '8px', // Rounded corners
     outline: 'none',
+    boxSizing: 'border-box', // Ensure padding doesn't increase size
   },
   submitButton: {
     backgroundColor: '#27AE60',
-    width: '105.5%',
+    width: '100%', // Changed width to 100%
     color: 'white',
     padding: '12px',
     fontSize: '16px',
     border: 'none',
-    borderRadius: '5px',
+    borderRadius: '8px', // Rounded corners
     cursor: 'pointer',
     marginTop: '20px',
     transition: 'background-color 0.3s',
