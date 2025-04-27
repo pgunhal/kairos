@@ -6,6 +6,8 @@ const mongoose = require('mongoose');
 const Mailbox = require("./models/Mailbox");
 const Email = require("./models/Email");
 
+const { generateReplyContent } = require('./services/openRouterService');
+
 const app = express();
 
 mongoose.connect(process.env.MONGODB_URI)
@@ -132,6 +134,18 @@ function parseMessage(message, userEmail) {
     };
 }
 
+async function replyToEmail(content) {
+
+    const finalBody = await generateReplyContent(content);
+      
+    // const emailResult = await emailService.sendEmail(req.user.id, user.email, email, subject, finalBody);
+      
+    console.log(finalBody);
+    return finalBody; 
+
+}
+
+
 // Helper function to wait
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -153,7 +167,13 @@ async function saveEmail(userId, parsedMessage) {
             direction: parsedMessage.direction,
             content: parsedMessage.content
         });
+
+        if(parsedMessage.direction == "inbound") {
+            replyToEmail(parsedMessage.content);
+        }
     }
+
+
 }
 
 // Helper function to fetch history with retries
