@@ -192,6 +192,9 @@ app.post('/reply-email', async (req, res) => {
             userId: mongoose.Types.ObjectId.createFromHexString(userId)
         });
 
+        console.log('originalEmailId:', originalEmailId);
+        console.log('originalThreadId:', originalThreadId);
+
         const originalEmail = await Email.findOne({ emailId: originalEmailId });
         let replyText = text;
         if (originalEmail) {
