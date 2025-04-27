@@ -55,7 +55,12 @@ function AlumniResultsPage() {
       if (error.response && error.response.status === 400) {
         alert(error.response.data.message || 'Already contacted.');
         setContacted(prev => ({ ...prev, [alum.email]: true }));
-      } else {
+      } else if (error.response?.data?.redirectToProfile) {
+          const shouldGo = window.confirm('Mailbox not connected. Would you like to connect it now?');
+          if (shouldGo) {
+            window.location.href = '/profile';
+          }
+        } else {
         console.error('Error contacting alumni:', error.message);
       }
     }

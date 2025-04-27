@@ -4,6 +4,9 @@ const User = require('../models/User');
 const Search = require('../models/Search'); // ✅ don't forget
 const emailService = require('../services/emailService'); // ✅ added!
 
+const { generateEmailContent, editEmailContent } = require('../services/geminiService');
+
+
 exports.getTemplates = async (req, res) => {
   try {
     const templates = await EmailTemplate.find({
@@ -66,18 +69,33 @@ exports.draftEmail = async (req, res) => {
 };
 
 exports.generateEmail = async (req, res) => {
-  const { role, company, experienceLevel } = req.body;
-  const generatedBody = `
-    Hi {{name}},
-
-    I'm reaching out as a ${experienceLevel} candidate interested in ${role} opportunities at ${company}.
-    I'd love to connect and hear more about your experience!
-
-    Best,
-    {{senderName}}
-  `;
-  res.json({ body: generatedBody });
-};
+    try {
+      const { role, company, alumni, tone = 'friendly' } = req.body;
+  
+      const user = await User.findById(req.user.id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // If no alumni given, use dummy
+      const dummyAlumni = alumni || {
+        name: '[Alumni Name]',
+        jobTitle: '[JobTitle]',
+        company: '[Company]',
+        location: '',
+        email: '',
+        linkedin_url: ''
+      };
+  
+      const emailBody = await generateEmailContent(role, company, user, dummyAlumni, tone);
+  
+      res.json({ body: emailBody });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error generating AI email', error: error.message });
+    }
+  };
+  
 
 exports.updateTemplate = async (req, res) => {
   try {
@@ -110,71 +128,72 @@ exports.deleteTemplate = async (req, res) => {
   }
 };
 
-// FINAL UPDATED sendEmail
+
 exports.sendEmail = async (req, res) => {
-  try {
-    const { email, name, jobTitle, company, location, linkedin_url, templateId, searchId } = req.body;
-
-    if (!email) {
-      return res.status(400).json({ message: 'Email address required.' });
-    }
-
-    let alumni = await Alumni.findOne({ email });
-
-    if (alumni) {
-      const alreadyContacted = alumni.contactedBy.some(
-        contact => contact.userId.toString() === req.user.id
-      );
-      if (alreadyContacted) {
-        return res.status(400).json({ message: 'You have already contacted this alumni.' });
+    try {
+      const { email, name, jobTitle, company, location, linkedin_url, templateId, searchId } = req.body;
+  
+      if (!email) {
+        return res.status(400).json({ message: 'Email address required.' });
       }
-    } else {
-      alumni = await Alumni.create({
-        name,
-        jobTitle,
-        company,
-        location,
-        email,
-        linkedin_url,
-        contactedBy: [],
-      });
+  
+      let alumni = await Alumni.findOne({ email });
+      if (!alumni) {
+        alumni = await Alumni.create({
+          name,
+          jobTitle,
+          company,
+          location,
+          email,
+          linkedin_url,
+          contactedBy: [],
+        });
+      } else {
+        const alreadyContacted = alumni.contactedBy.some(
+          contact => contact.userId.toString() === req.user.id
+        );
+        if (alreadyContacted) {
+          return res.status(400).json({ message: 'You have already contacted this alumni.' });
+        }
+      }
+  
+      const template = await EmailTemplate.findById(templateId);
+      if (!template) {
+        return res.status(404).json({ message: 'Template not found' });
+      }
+  
+      const user = await User.findById(req.user.id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // ⚡ Generate personalized body by calling LLM dynamically
+      const aName = alumni.name || '';
+      const roleName = alumni.jobTitle || 'opportunity';
+      const companyName = alumni.company || 'the company';
+      const subject = template.subject || '[Subject]';
+  
+      const finalBody = await editEmailContent(template.body, roleName, companyName, user, alumni, 'professional', subject);
+  
+      const emailResult = await emailService.sendEmail(req.user.id, user.email, email, subject, finalBody);
+  
+      alumni.contactedBy.push({ userId: req.user.id, timestamp: new Date() });
+      await alumni.save();
+  
+      if (searchId) {
+        await Search.findByIdAndUpdate(searchId, { $inc: { emailsSent: 1 } });
+      }
+  
+      res.json({ success: true, message: 'Email sent and recorded', result: emailResult });
+  
+    } catch (error) {
+      console.error(error);
+  
+      if (error.code === 'MAILBOX_NOT_CONNECTED') {
+        return res.status(403).json({ message: 'Mailbox not connected. Please link your mailbox.', redirectToProfile: true });
+      }
+  
+      res.status(500).json({ message: 'Server error', error: error.message });
     }
-
-    const template = await EmailTemplate.findById(templateId);
-    if (!template) {
-      return res.status(404).json({ message: 'Template not found' });
-    }
-
-    const user = await User.findById(req.user.id);
-
-    const subject = template.subject
-      .replace(/{{name}}/g, alumni.name)
-      .replace(/{{jobTitle}}/g, alumni.jobTitle)
-      .replace(/{{company}}/g, alumni.company)
-      .replace(/{{senderName}}/g, `${user.firstName} ${user.lastName}`);
-
-    const body = template.body
-      .replace(/{{name}}/g, alumni.name)
-      .replace(/{{jobTitle}}/g, alumni.jobTitle)
-      .replace(/{{company}}/g, alumni.company)
-      .replace(/{{senderName}}/g, `${user.firstName} ${user.lastName}`);
-
-    const emailResult = await emailService.sendEmail(email, subject, body);
-
-    alumni.contactedBy.push({
-      userId: req.user.id,
-      timestamp: new Date()
-    });
-    await alumni.save();
-
-    if (searchId) {
-      await Search.findByIdAndUpdate(searchId, { $inc: { emailsSent: 1 } });
-    }
-
-    res.json({ success: true, message: 'Email sent and recorded', result: emailResult });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-};
+  };
+  

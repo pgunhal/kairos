@@ -7,7 +7,8 @@ function EmailSuggestionsPage() {
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [newTemplateOpen, setNewTemplateOpen] = useState(false);
   const [form, setForm] = useState({ name: '', subject: '', body: '' });
-  const [aiOptions, setAiOptions] = useState({ role: '', company: '', experienceLevel: '', tone: '' });
+  const [aiOptions, setAiOptions] = useState({ role: '', company: '', user: {}, alumni: '', tone: '' });
+
   const [showAIOptions, setShowAIOptions] = useState(false);
   const [loadingAI, setLoadingAI] = useState(false);
 
@@ -28,7 +29,7 @@ function EmailSuggestionsPage() {
     setEditingTemplate(template);
     setForm({ name: template.name, subject: template.subject, body: template.body });
     setShowAIOptions(false);
-    setAiOptions({ role: '', company: '', experienceLevel: '', tone: '' });
+    setAiOptions({ role: '', company: '', alumni: '', tone: '' });
   };
 
   const openNewTemplate = () => {
@@ -36,7 +37,7 @@ function EmailSuggestionsPage() {
     setForm({ name: '', subject: '', body: '' });
     setNewTemplateOpen(true);
     setShowAIOptions(false);
-    setAiOptions({ role: '', company: '', experienceLevel: '', tone: '' });
+    setAiOptions({ role: '', company: '', alumni: '', tone: '' });
   };
 
   const handleChange = (e) => {
@@ -72,7 +73,7 @@ function EmailSuggestionsPage() {
     setNewTemplateOpen(false);
     setForm({ name: '', subject: '', body: '' });
     setShowAIOptions(false);
-    setAiOptions({ role: '', company: '', experienceLevel: '', tone: '' });
+    setAiOptions({ role: '', company: '', alumni: '', tone: '' });
   };
 
   const insertPlaceholder = (placeholder) => {
@@ -88,17 +89,19 @@ function EmailSuggestionsPage() {
       return;
     }
 
-    if (!aiOptions.role || !aiOptions.company || !aiOptions.experienceLevel || !aiOptions.tone) {
+    if (!aiOptions.role || !aiOptions.company || !aiOptions.alumni || !aiOptions.tone) {
       alert('Please fill all AI generation fields.');
       return;
     }
+
+
 
     setLoadingAI(true);
     try {
       const res = await api.post('/api/emails/generate', aiOptions);
       setForm((prev) => ({ ...prev, body: res.data.body }));
       setShowAIOptions(false);
-      setAiOptions({ role: '', company: '', experienceLevel: '', tone: '' });
+      setAiOptions({ role: '', company: '', alumni: '', tone: '' });
     } catch (err) {
       console.error('Error generating AI email:', err);
     } finally {
@@ -195,8 +198,8 @@ function EmailSuggestionsPage() {
               <input
                 type="text"
                 placeholder="Experience Level"
-                value={aiOptions.experienceLevel}
-                onChange={(e) => setAiOptions({ ...aiOptions, experienceLevel: e.target.value })}
+                value={aiOptions.alumni}
+                onChange={(e) => setAiOptions({ ...aiOptions, alumni: e.target.value })}
                 className="input-field"
               />
               <input

@@ -69,17 +69,36 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-// Get user profile
-exports.getUserProfile = async (req, res) => {
+// GET user profile
+exports.getProfile = async (req, res) => {
   try {
+    console.log("called");
     const user = await User.findById(req.user.id).select('-password');
-    if (user) {
-      res.json(user);
-    } else {
-      res.status(404).json({ message: 'User not found' });
-    }
+    res.json(user);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
+// UPDATE user profile
+exports.updateProfile = async (req, res) => {
+  try {
+    const { firstName, lastName, email, linkedinUrl, university, phone, industry } = req.body;
+
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.firstName = firstName || user.firstName;
+    user.lastName = lastName || user.lastName;
+    user.email = email || user.email;
+    user.linkedinUrl = linkedinUrl || user.linkedinUrl;
+    user.university = university || user.university;
+    user.phone = phone || user.phone;
+    user.industry = industry || user.industry;
+
+    await user.save();
+    res.json({ message: 'Profile updated successfully', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};

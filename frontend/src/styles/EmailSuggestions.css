@@ -95,6 +95,17 @@
   align-items: center;
 }
 
+
+.editor-sidebar {
+  width: 600px; /* or even 700px if you want */
+  max-width: 90%; /* responsive */
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 30px;
+  /* box-shadow: 0 0 20px rgba(0,0,0,0.1); */
+}
+
+
 .close-btn {
   background: none;
   border: none;
