@@ -171,15 +171,9 @@ async function saveEmail(userId, parsedMessage) {
         });
 
         if(parsedMessage.direction == "inbound") {
-            const replyEmail = await replyToEmail(parsedMessage.content);
-            let user;
+            const user = await User.findOne({ _id: userId });
 
-            try {
-                user = await User.findOne({ _id: userId });
-            } catch (error) {
-                console.error('Error finding user:', error);
-                return;
-            }
+            const replyEmail = await replyToEmail(user.firstName + " " + user.lastName, parsedMessage.from, parsedMessage.content);
 
             await axios.post('http://localhost:3002/reply-email', {
                 userId,

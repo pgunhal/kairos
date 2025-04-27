@@ -1,11 +1,14 @@
 const axios = require('axios');
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-exports.generateReplyContent = async (content) => {
+exports.generateReplyContent = async (senderName, recipientName, content) => {
     try {
      
       const prompt = `
 Write a professional networking email that replies to the email below, based on the content of the email.
+
+You are ${senderName}
+The person you are talking to is ${recipientName}
 
 Guidelines:
 - Be concise, polite, motivated.
