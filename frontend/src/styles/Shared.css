@@ -1,48 +1,167 @@
-.metric-card {
-    flex: 1;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.1);
-    padding: 1.5rem;
-    text-align: center;
-  }
-  
-  .metric-card h4 {
-    font-size: 1rem;
-    color: #34495e;
-  }
-  
-  .metric-value {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #2c3e50;
-    margin-top: 0.5rem;
-  }
-  
-  .activity-feed {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    margin-top: 1rem;
-  }
-  
-  .activity-item {
-    padding: 12px;
-    border-bottom: 1px solid #eee;
-    color: #555;
-    font-size: 15px;
-  }
-  
-  .activity-item:last-child {
-    border-bottom: none;
-  }
-  
-  .loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 50vh;
-    font-size: 20px;
-    color: #7f8c8d;
-  }
-  
+/* Modern Airbnb-inspired Shared Components */
+
+/* Activity Feed */
+.activity-feed-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid #ebebeb;
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f7f7f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.activity-email .activity-icon {
+  background-color: #E8F4FC;
+}
+
+.activity-meeting .activity-icon {
+  background-color: #F1F7E6;
+}
+
+.activity-profile .activity-icon {
+  background-color: #F5EEFC;
+}
+
+.activity-connection .activity-icon {
+  background-color: #FFEAE5;
+}
+
+.activity-content {
+  flex: 1;
+}
+
+.activity-text {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #222;
+}
+
+.activity-name {
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+.activity-action {
+  color: #484848;
+}
+
+.activity-time {
+  margin: 0;
+  font-size: 12px;
+  color: #717171;
+}
+
+.no-activity {
+  padding: 24px 0;
+  text-align: center;
+  color: #717171;
+}
+
+/* Loading state */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 50vh;
+  color: #717171;
+  gap: 16px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #0066FF; /* Updated to vibrant blue */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-primary {
+  background-color: #E8F4FC;
+  color: #0066FF; /* Updated to vibrant blue */
+}
+
+.badge-success {
+  background-color: #E8F5E9;
+  color: #4CAF50;
+}
+
+.badge-info {
+  background-color: #E3F2FD;
+  color: #2196F3;
+}
+
+/* Buttons */
+.button {
+  font-family: 'Circular', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background-color: #0066FF; /* Updated to vibrant blue */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+  text-decoration: none;
+}
+
+.button:hover {
+  background-color: #0055D4; /* Darker shade of vibrant blue */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.button.secondary {
+  background-color: white;
+  color: #222;
+  border: 1px solid #ddd;
+}
+
+.button.secondary:hover {
+  border-color: #0066FF; /* Updated to vibrant blue */
+  background-color: #f7f7f7;
+}
