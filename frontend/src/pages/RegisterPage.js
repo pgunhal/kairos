@@ -197,7 +197,7 @@ const styles = {
   },
   submitButton: {
     backgroundColor: '#27AE60',
-    width: '105.5%',
+    width: '105%',
     color: 'white',
     padding: '12px',
     fontSize: '16px',
