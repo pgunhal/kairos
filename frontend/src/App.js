@@ -23,27 +23,47 @@ function AppContent() {
   const location = useLocation();
   const { user } = useContext(AuthContext);
 
-  // Only show Navbar if logged in AND not on login/register pages
-  const showNavbar = user && !['/login', '/register'].includes(location.pathname);
+  // Determine if the current route is login or register
+  const isAuthPage = ['/login', '/register'].includes(location.pathname);
+
+  // Only show Navbar if logged in AND not on an auth page
+  const showNavbar = user && !isAuthPage;
 
   return (
     <div className="app">
-      {showNavbar && <Navbar />}
-      <main className="main-content">
+      {/* Render auth pages directly if on login/register */}
+      {isAuthPage ? (
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
-          <Route path="/search" element={<PrivateRoute><JobSearchPage /></PrivateRoute>} />
-          <Route path="/alumni/:jobTitle" element={<PrivateRoute><AlumniResultsPage /></PrivateRoute>} />
-          <Route path="/templates" element={<PrivateRoute><EmailSuggestionsPage /></PrivateRoute>} />
-          <Route path="/analytics" element={<PrivateRoute><AnalyticsPage /></PrivateRoute>} />
-          <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
-          <Route path="/link-mailbox" element={<PrivateRoute><LinkMailboxPage /></PrivateRoute>} />
-          <Route path="/auth/google/callback" element={<PrivateRoute><GoogleAuthCallback /></PrivateRoute>} />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
-      </main>
+      ) : (
+        <>
+          {/* Show Navbar for non-auth pages when logged in */}
+          {showNavbar && <Navbar />}
+          <main className="main-content">
+            <Routes>
+              {/* Redirect logged-in users trying to access auth pages */}
+              <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/register" element={<Navigate to="/dashboard" replace />} />
+
+              {/* Private Routes */}
+              <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
+              <Route path="/search" element={<PrivateRoute><JobSearchPage /></PrivateRoute>} />
+              <Route path="/alumni/:jobTitle" element={<PrivateRoute><AlumniResultsPage /></PrivateRoute>} />
+              <Route path="/templates" element={<PrivateRoute><EmailSuggestionsPage /></PrivateRoute>} />
+              <Route path="/analytics" element={<PrivateRoute><AnalyticsPage /></PrivateRoute>} />
+              <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+              <Route path="/link-mailbox" element={<PrivateRoute><LinkMailboxPage /></PrivateRoute>} />
+              <Route path="/auth/google/callback" element={<PrivateRoute><GoogleAuthCallback /></PrivateRoute>} />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+              {/* Fallback or 404 route if needed */}
+              {/* <Route path="*" element={<NotFoundPage />} /> */}
+            </Routes>
+          </main>
+        </>
+      )}
     </div>
   );
 }
