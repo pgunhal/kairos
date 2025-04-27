@@ -78,12 +78,15 @@ function LoginPage() {
 const styles = {
   container: {
     display: 'flex',
-    height: '100vh',
-    width: '100%', // Use 100% width to respect parent container
+    height: '100vh', // Ensure full viewport height
+    width: '100vw', // Ensure full viewport width
     margin: 0,
     padding: 0,
     overflow: 'hidden',
     background: 'linear-gradient(135deg, #2D9CDB, #27AE60)',
+    position: 'fixed', // Ensure it covers everything
+    top: 0,
+    left: 0,
   },
   leftSide: {
     flex: 1,
@@ -151,8 +154,8 @@ const styles = {
     boxSizing: 'border-box', // Ensure padding doesn't increase size
   },
   submitButton: {
-    backgroundColor: '#27AE60',
-    width: '100%', // Changed width to 100%
+    backgroundColor: '#0066FF', // Updated to vibrant blue
+    width: '100%',
     color: 'white',
     padding: '12px',
     fontSize: '16px',
