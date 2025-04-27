@@ -1,4 +1,5 @@
 # Kairos - Connecting the Right People at the Right Time
+![Uploading Screenshot 2025-04-27 at 12.30.00 AM.png…]()
 
 Kairos is a tool designed to automate and streamline the process of reaching out to university alumni for networking and internship opportunities. We built Kairos to help ambitious students save time and increase their success rate in the competitive job market, drawing from our own experiences navigating the CS internship landscape.
 
