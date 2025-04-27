@@ -40,13 +40,13 @@ function DashboardPage() {
       </div>
 
       <div className="quick-actions">
-        <Link to="/search" className="action-button primary">
-          <span className="icon">🔍</span>
-          New Search
-        </Link>
         <Link to="/templates" className="action-button secondary">
           <span className="icon">📝</span>
           Email Templates
+        </Link>
+        <Link to="/search" className="action-button secondary">
+          <span className="icon">🔍</span>
+          New Search
         </Link>
         <Link to="/analytics" className="action-button secondary">
           <span className="icon">📊</span>
