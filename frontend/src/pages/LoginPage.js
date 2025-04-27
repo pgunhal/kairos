@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import logo from '../assets/kairos_logo_transparent.png';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -28,7 +29,7 @@ function LoginPage() {
     <div style={styles.container}>
       <div style={styles.leftSide}>
         <div style={styles.branding}>
-          <img src="/kairos-logo.png" alt="Kairos Logo" style={styles.logo} />
+          <img src={logo} alt="Kairos Logo" style={styles.logo} />
           <h1 style={styles.brandName}>Kairos</h1>
           <p style={styles.brandTagline}>Connect with opportunity.</p>
         </div>
@@ -78,13 +79,14 @@ const styles = {
   container: {
     display: 'flex',
     height: '100vh',
+    width: '100%', // Use 100% width to respect parent container
     margin: 0,
     padding: 0,
     overflow: 'hidden',
+    background: 'linear-gradient(135deg, #2D9CDB, #27AE60)',
   },
   leftSide: {
     flex: 1,
-    background: 'linear-gradient(135deg, #2D9CDB, #27AE60)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -95,7 +97,7 @@ const styles = {
     textAlign: 'center',
   },
   logo: {
-    width: '80px',
+    width: '256px',
     marginBottom: '20px',
   },
   brandName: {
@@ -108,7 +110,6 @@ const styles = {
   },
   rightSide: {
     flex: 1,
-    backgroundColor: '#ffffff',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -116,9 +117,10 @@ const styles = {
   formContainer: {
     width: '100%',
     maxWidth: '400px',
-    padding: '20px',
+    padding: '40px',
     borderRadius: '8px',
     backgroundColor: '#fff',
+    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
   },
   heading: {
     textAlign: 'center',
