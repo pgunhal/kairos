@@ -17,7 +17,7 @@ function DashboardPage() {
         const statsRes = await api.get('/api/analytics/user-stats');
         setStats(statsRes.data);
         setActivity([
-          { type: 'email_sent', name: 'John Doe', time: '2 hours ago' },
+          { type: 'email_sent', name: 'Pranav Gunhal!', time: '2 hours ago' },
           { type: 'meeting_scheduled', name: 'Jane Smith', time: '5 hours ago' }
         ]);
       } catch (error) {
