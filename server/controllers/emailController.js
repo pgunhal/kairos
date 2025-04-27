@@ -70,24 +70,8 @@ exports.draftEmail = async (req, res) => {
 
 exports.generateEmail = async (req, res) => {
     try {
-      const { role, company, alumni, tone = 'friendly' } = req.body;
-  
-      const user = await User.findById(req.user.id);
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      // If no alumni given, use dummy
-      const dummyAlumni = alumni || {
-        name: '[Alumni Name]',
-        jobTitle: '[JobTitle]',
-        company: '[Company]',
-        location: '',
-        email: '',
-        linkedin_url: ''
-      };
-  
-      const emailBody = await generateEmailContent(role, company, user, dummyAlumni, tone);
+      const prompt  = req.body;
+      const emailBody = await generateEmailContent(prompt);
   
       res.json({ body: emailBody });
     } catch (error) {

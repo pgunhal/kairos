@@ -7,9 +7,8 @@ function EmailSuggestionsPage() {
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [newTemplateOpen, setNewTemplateOpen] = useState(false);
   const [form, setForm] = useState({ name: '', subject: '', body: '' });
-  const [aiOptions, setAiOptions] = useState({ role: '', company: '', user: {}, alumni: '', tone: '' });
-
   const [showAIOptions, setShowAIOptions] = useState(false);
+  const [prompt, setPrompt] = useState('');
   const [loadingAI, setLoadingAI] = useState(false);
 
   useEffect(() => {
@@ -29,7 +28,7 @@ function EmailSuggestionsPage() {
     setEditingTemplate(template);
     setForm({ name: template.name, subject: template.subject, body: template.body });
     setShowAIOptions(false);
-    setAiOptions({ role: '', company: '', alumni: '', tone: '' });
+    setPrompt('');
   };
 
   const openNewTemplate = () => {
@@ -37,7 +36,7 @@ function EmailSuggestionsPage() {
     setForm({ name: '', subject: '', body: '' });
     setNewTemplateOpen(true);
     setShowAIOptions(false);
-    setAiOptions({ role: '', company: '', alumni: '', tone: '' });
+    setPrompt('');
   };
 
   const handleChange = (e) => {
@@ -73,7 +72,7 @@ function EmailSuggestionsPage() {
     setNewTemplateOpen(false);
     setForm({ name: '', subject: '', body: '' });
     setShowAIOptions(false);
-    setAiOptions({ role: '', company: '', alumni: '', tone: '' });
+    setPrompt('');
   };
 
   const insertPlaceholder = (placeholder) => {
@@ -89,19 +88,17 @@ function EmailSuggestionsPage() {
       return;
     }
 
-    if (!aiOptions.role || !aiOptions.company || !aiOptions.alumni || !aiOptions.tone) {
-      alert('Please fill all AI generation fields.');
+    if (!prompt.trim()) {
+      alert('Please enter a prompt for AI generation.');
       return;
     }
 
-
-
     setLoadingAI(true);
     try {
-      const res = await api.post('/api/emails/generate', aiOptions);
+      const res = await api.post('/api/emails/generate', { prompt });  // send raw prompt
       setForm((prev) => ({ ...prev, body: res.data.body }));
       setShowAIOptions(false);
-      setAiOptions({ role: '', company: '', alumni: '', tone: '' });
+      setPrompt('');
     } catch (err) {
       console.error('Error generating AI email:', err);
     } finally {
@@ -168,6 +165,7 @@ function EmailSuggestionsPage() {
             value={form.body}
             onChange={handleChange}
             className="input-field"
+            rows={10}
           />
 
           <div className="editor-actions">
@@ -181,33 +179,12 @@ function EmailSuggestionsPage() {
 
           {showAIOptions && (
             <div className="ai-options">
-              <input
-                type="text"
-                placeholder="Role (e.g. Software Engineer)"
-                value={aiOptions.role}
-                onChange={(e) => setAiOptions({ ...aiOptions, role: e.target.value })}
+              <textarea
+                placeholder="Enter your instructions to AI (e.g. 'Write a friendly outreach email to a software engineer at Google')"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
                 className="input-field"
-              />
-              <input
-                type="text"
-                placeholder="Company"
-                value={aiOptions.company}
-                onChange={(e) => setAiOptions({ ...aiOptions, company: e.target.value })}
-                className="input-field"
-              />
-              <input
-                type="text"
-                placeholder="Experience Level"
-                value={aiOptions.alumni}
-                onChange={(e) => setAiOptions({ ...aiOptions, alumni: e.target.value })}
-                className="input-field"
-              />
-              <input
-                type="text"
-                placeholder="Tone (Friendly/Professional/Excited)"
-                value={aiOptions.tone}
-                onChange={(e) => setAiOptions({ ...aiOptions, tone: e.target.value })}
-                className="input-field"
+                rows={4}
               />
             </div>
           )}

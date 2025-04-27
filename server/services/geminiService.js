@@ -1,20 +1,16 @@
 const axios = require('axios');
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-exports.generateEmailContent = async (role, company, user, alumni, tone = 'friendly', subject = '') => {
+exports.generateEmailContent = async (user, content) => {
     try {
       const senderName = `${user.firstName} ${user.lastName}`;
       const senderLinkedIn = user.linkedinUrl || 'Not provided';
       const senderEmail = user.email || 'Not provided';
       const senderPhone = user.phone || '';
   
-      const recipientName = alumni.name || '';
-      const recipientCompany = alumni.company || '[Company]';
-      const recipientRole = alumni.jobTitle || '[Role]';
-  
+    
       const prompt = `
-Write a professional networking email from ${senderName} to ${recipientName}.
-
+Write a professional email from ${senderName} 
 Context:
 - Sender: ${senderName}
 - University: ${user.university || 'Not provided'}
@@ -23,26 +19,20 @@ Context:
 - Email: ${senderEmail}
 - Phone: ${senderPhone || 'optional'}
 
-Recipient:
-- Name: ${recipientName}
-- Company: ${recipientCompany}
-- Role: [JobTitle]
-
-Email Subject: "${subject}"
-
 Guidelines:
+- FOLLOW THE USER PROMPT WHICH IS AT THE END OF THIS MESSAGE. DO WHAT THE USER WANTS. THIS IS THE MOST IMPORTANT THING. 
 - Be concise, polite, motivated.
 - Keep under 100 words.
 - Suggest a quick coffee chat or call.
 - Do NOT directly ask for referral.
 - Use natural professional tone.
-- Leave [Company], [Role], [JobTitle] placeholders.
-- Use {{name}} for recipient, {{senderName}} for sender.
+- Leave [Company], [Role], [JobTitle] placeholders IF NEEDED
+- Use {{name}} for recipient, {{senderName}} for sender, as needed 
+Output only email body (no subject again). 
 
-Output only email body (no subject again).
-
-Tone: ${tone}
-`;
+Follow the prompt from the user below to generate the email and set the tone accordingly. 
+Ensure required information and tone based on the prompt below: 
+` + content ;
       const response = await axios.post(
         'https://openrouter.ai/api/v1/chat/completions',
         {
