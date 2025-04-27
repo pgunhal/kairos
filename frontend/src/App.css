@@ -24,8 +24,12 @@ body {
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  padding-top: 80px;
+ padding-top: 20px;
+ margin-left: 220px; /* shift to the right for sidebar width */
+
 }
+
+
 
 h1 {
   margin-bottom: 20px;

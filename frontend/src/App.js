@@ -1,8 +1,7 @@
-// client/src/App.js
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, AuthContext } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
 import LoginPage from './pages/LoginPage';
@@ -20,61 +19,41 @@ import './App.css';
 // Get client ID from environment variable
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
+function AppContent() {
+  const location = useLocation();
+  const { user } = useContext(AuthContext);
+
+  // Only show Navbar if logged in AND not on login/register pages
+  const showNavbar = user && !['/login', '/register'].includes(location.pathname);
+
+  return (
+    <div className="app">
+      {showNavbar && <Navbar />}
+      <main className="main-content">
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
+          <Route path="/search" element={<PrivateRoute><JobSearchPage /></PrivateRoute>} />
+          <Route path="/alumni/:jobTitle" element={<PrivateRoute><AlumniResultsPage /></PrivateRoute>} />
+          <Route path="/templates" element={<PrivateRoute><EmailSuggestionsPage /></PrivateRoute>} />
+          <Route path="/analytics" element={<PrivateRoute><AnalyticsPage /></PrivateRoute>} />
+          <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+          <Route path="/link-mailbox" element={<PrivateRoute><LinkMailboxPage /></PrivateRoute>} />
+          <Route path="/auth/google/callback" element={<PrivateRoute><GoogleAuthCallback /></PrivateRoute>} />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </main>
+    </div>
+  );
+}
+
 function App() {
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <AuthProvider>
         <Router>
-          <div className="app">
-            <Navbar />
-            <main className="main-content">
-              <Routes>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/dashboard" element={
-                  <PrivateRoute>
-                    <DashboardPage />
-                  </PrivateRoute>
-                } />
-                <Route path="/search" element={
-                  <PrivateRoute>
-                    <JobSearchPage />
-                  </PrivateRoute>
-                } />
-                <Route path="/alumni/:jobTitle" element={
-                  <PrivateRoute>
-                    <AlumniResultsPage />
-                  </PrivateRoute>
-                } />
-                <Route path="/templates" element={
-                  <PrivateRoute>
-                    <EmailSuggestionsPage />
-                  </PrivateRoute>
-                } />
-                <Route path="/analytics" element={
-                  <PrivateRoute>
-                    <AnalyticsPage />
-                  </PrivateRoute>
-                } />
-                <Route path="/profile" element={
-                  <PrivateRoute>
-                    <ProfilePage />
-                  </PrivateRoute>
-                } />
-                <Route path="/link-mailbox" element={
-                  <PrivateRoute>
-                    <LinkMailboxPage />
-                  </PrivateRoute>
-                } />
-                <Route path="/auth/google/callback" element={
-                  <PrivateRoute>
-                    <GoogleAuthCallback />
-                  </PrivateRoute>
-                } />
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              </Routes>
-            </main>
-          </div>
+          <AppContent />
         </Router>
       </AuthProvider>
     </GoogleOAuthProvider>

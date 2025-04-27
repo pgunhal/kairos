@@ -49,8 +49,6 @@ function DashboardPage() {
         <MetricCard title="Success Rate" value={`${Math.round((stats?.totalEmails / (stats?.totalSearches || 1)) * 100)}%`} />
       </div>
 
-      <h2>Recent Activity</h2>
-      <ActivityFeed activities={activity} />
     </div>
   );
 }
