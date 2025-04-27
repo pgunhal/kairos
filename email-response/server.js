@@ -5,6 +5,8 @@ const { google } = require('googleapis');
 const mongoose = require('mongoose');
 const Mailbox = require("./models/Mailbox");
 const Email = require("./models/Email");
+const User = require("./models/User");
+const axios = require("axios");
 
 const { generateReplyContent } = require('./services/openRouterService');
 
@@ -169,7 +171,21 @@ async function saveEmail(userId, parsedMessage) {
         });
 
         if(parsedMessage.direction == "inbound") {
-            replyToEmail(parsedMessage.content);
+            const replyEmail = await replyToEmail(parsedMessage.content);
+
+            const user = await User.findOne({ _id: userId });
+
+            await axios.post('http://localhost:3002/reply-email', {
+                userId,
+                sender: user.email,
+                to: parsedMessage.from,
+                subject: parsedMessage.headers.subject,
+                text: replyEmail,
+                originalEmailId: email.emailId,
+                originalThreadId: email.threadId,
+            });
+
+            console.log("Reply sent to email:", parsedMessage.from);
         }
     }
 

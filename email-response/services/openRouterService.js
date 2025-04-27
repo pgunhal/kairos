@@ -16,7 +16,7 @@ Guidelines:
 
 Output only email body (no subject again).
 
-Below is the email:
+Below is the email chain:
 ` + content;
       const response = await axios.post(
         'https://openrouter.ai/api/v1/chat/completions',
