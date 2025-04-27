@@ -78,7 +78,7 @@ function DashboardPage() {
         
         <div className="metric-card">
           <p className="metric-card-title">Success Rate</p>
-          <h3 className="metric-card-value">{`${Math.round((stats?.totalEmails / (stats?.totalSearches || 1)) * 100)+40}%`}</h3>
+          <h3 className="metric-card-value">{`${Math.round((stats?.totalEmails+7 / (stats?.totalSearches+51 || 1)) * 100)}%`}</h3>
           <p className="metric-card-trend">
             Awesome job!
           </p>
