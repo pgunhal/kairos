@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import logo from '../assets/kairos_logo_transparent.png';
+import background from '../assets/sky-bg.jpg'; // Import your background
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -26,49 +27,51 @@ function LoginPage() {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.leftSide}>
-        <div style={styles.branding}>
+    <div style={{ ...styles.container, backgroundImage: `url(${background})` }}>
+      <div style={styles.overlay}>
+        <div style={styles.leftSide}>
           <img src={logo} alt="Kairos Logo" style={styles.logo} />
-          <h1 style={styles.brandName}>Kairos</h1>
-          <p style={styles.brandTagline}>Connecting the right people at the right time.</p>
         </div>
-      </div>
 
-      <div style={styles.rightSide}>
-        <div style={styles.formContainer}>
-          <h2 style={styles.heading}>Login</h2>
-          {error && <p style={{ color: 'red', marginBottom: '10px' }}>{error}</p>}
-          <form onSubmit={handleSubmit} style={styles.form}>
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Email</label>
-              <input
-                type="email"
-                name="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                style={styles.input}
-                required
-              />
-            </div>
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Password</label>
-              <input
-                type="password"
-                name="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                style={styles.input}
-                required
-              />
-            </div>
-            <button type="submit" style={styles.submitButton}>Login</button>
-          </form>
-          <p style={styles.bottomText}>
-            Don't have an account? <Link to="/register">Register</Link>
-          </p>
+        <div style={styles.rightSide}>
+          <div style={styles.card}>
+            <h2 style={styles.heading}>Welcome back</h2>
+            <p style={styles.subheading}>Please sign in to your account</p>
+
+            {error && <p style={styles.errorMessage}>{error}</p>}
+
+            <form onSubmit={handleSubmit} style={styles.form}>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  style={styles.input}
+                  required
+                />
+              </div>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Password</label>
+                <input
+                  type="password"
+                  name="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  style={styles.input}
+                  required
+                />
+              </div>
+              <button type="submit" style={styles.submitButton}>Login</button>
+            </form>
+
+            <p style={styles.bottomText}>
+              Don't have an account? <Link to="/register" style={styles.link}>Register</Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -77,39 +80,28 @@ function LoginPage() {
 
 const styles = {
   container: {
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    height: '100vh',
+    width: '100vw',
     display: 'flex',
-    height: '100vh', // Ensure full viewport height
-    width: '100vw', // Ensure full viewport width
-    margin: 0,
-    padding: 0,
-    overflow: 'hidden',
-    background: 'linear-gradient(135deg, #2D9CDB, #27AE60)',
-    position: 'fixed', // Ensure it covers everything
-    top: 0,
-    left: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  overlay: {
+    backgroundColor: 'rgba(255, 255, 255, 0.8)', // light overlay to make content readable
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: '40px',
   },
   leftSide: {
     flex: 1,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    flexDirection: 'column',
-    color: '#fff',
-  },
-  branding: {
-    textAlign: 'center',
-  },
-  logo: {
-    width: '256px',
-    marginBottom: '20px',
-  },
-  brandName: {
-    fontSize: '36px',
-    marginBottom: '10px',
-    fontWeight: 'bold',
-  },
-  brandTagline: {
-    fontSize: '18px',
   },
   rightSide: {
     flex: 1,
@@ -117,60 +109,81 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  formContainer: {
+  logo: {
+    width: '200px',
+  },
+  card: {
     width: '100%',
     maxWidth: '400px',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)', // slight translucent card
+    borderRadius: '16px',
     padding: '40px',
-    borderRadius: '16px', // Increased border radius
-    backgroundColor: '#fff',
-    boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)', // Softer shadow
+    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+    textAlign: 'center',
+    backdropFilter: 'blur(10px)', // nice blur effect
   },
   heading: {
-    textAlign: 'center',
-    marginBottom: '20px',
-    fontFamily: 'Arial, sans-serif',
+    fontSize: '28px',
+    fontWeight: '600',
+    marginBottom: '8px',
     color: '#333',
+  },
+  subheading: {
+    fontSize: '16px',
+    color: '#666',
+    marginBottom: '24px',
+  },
+  errorMessage: {
+    color: 'red',
+    marginBottom: '10px',
+    fontSize: '14px',
   },
   form: {
     display: 'flex',
     flexDirection: 'column',
+    textAlign: 'left',
   },
   inputGroup: {
-    marginBottom: '15px',
+    marginBottom: '16px',
   },
   label: {
-    marginBottom: '5px',
-    fontWeight: 'bold',
-    fontFamily: 'Arial, sans-serif',
+    fontSize: '14px',
+    marginBottom: '6px',
     color: '#555',
+    fontWeight: '500',
   },
   input: {
     width: '100%',
-    padding: '12px', // Slightly increased padding
+    padding: '12px',
     fontSize: '14px',
     border: '1px solid #ccc',
-    borderRadius: '8px', // Rounded corners
+    borderRadius: '8px',
     outline: 'none',
-    boxSizing: 'border-box', // Ensure padding doesn't increase size
+    transition: 'border 0.2s',
   },
   submitButton: {
-    backgroundColor: '#0066FF', // Updated to vibrant blue
+    backgroundColor: '#0066FF',
     width: '100%',
     color: 'white',
     padding: '12px',
     fontSize: '16px',
+    fontWeight: 'bold',
     border: 'none',
-    borderRadius: '8px', // Rounded corners
+    borderRadius: '8px',
     cursor: 'pointer',
     marginTop: '20px',
     transition: 'background-color 0.3s',
   },
   bottomText: {
     textAlign: 'center',
-    marginTop: '15px',
+    marginTop: '20px',
     fontSize: '14px',
-    fontFamily: 'Arial, sans-serif',
     color: '#555',
+  },
+  link: {
+    color: '#0066FF',
+    textDecoration: 'none',
+    fontWeight: '600',
   },
 };
 
