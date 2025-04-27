@@ -1,75 +1,126 @@
 .profile-page {
     display: flex;
+    justify-content: center;
     padding: 40px;
     background: #f4f6f8;
     min-height: 100vh;
-    gap: 30px;
   }
   
-  .profile-info-card {
+  .tabs-container {
+    width: 100%;
+    max-width: 1000px;
+  }
+  
+  .tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .tabs button {
     flex: 1;
+    padding: 12px 20px;
+    font-size: 16px;
+    background: #ecf0f1;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    color: #555;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .tabs button.active {
+    background: #3498db;
+    color: white;
+  }
+  
+  .tab-content {
     background: white;
     border-radius: 10px;
     padding: 30px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.05);
   }
   
-  .profile-info-card h2 {
-    margin-bottom: 20px;
-    font-size: 24px;
-    color: #2c3e50;
+  .profile-info-card,
+  .edit-form,
+  .settings-card {
+    width: 100%;
   }
   
-  .profile-info-card p {
-    margin: 10px 0;
+  .profile-details p {
+    margin: 12px 0;
     font-size: 16px;
     color: #34495e;
   }
   
-  .edit-form {
-    flex: 2;
-    background: white;
-    border-radius: 10px;
-    padding: 30px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-  }
-  
-  .edit-form h2 {
-    margin-bottom: 20px;
-    font-size: 24px;
-    color: #2c3e50;
-  }
-  
-  .edit-form form {
+  .edit-form-grid {
     display: flex;
     flex-direction: column;
     gap: 20px;
   }
   
-  .edit-form .form-group {
-    display: flex;
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 20px;
   }
   
-  .edit-form input {
-    padding: 12px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    width: 100%;
+  .form-group {
+    display: flex;
+    flex-direction: column;
   }
   
-  .mailbox-widget {
-    margin-top: 30px;
-    background: #ecf0f1;
+  .form-group label {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+  
+  .form-group input {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+  
+  .form-full-width {
+    display: flex;
+    flex-direction: column;
+    grid-column: span 2;
+  }
+  
+  .form-full-width label {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+  
+  .form-full-width input {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+  
+  .mailbox-connect {
+    margin-top: 20px;
     padding: 20px;
+    background: #ecf0f1;
     border-radius: 8px;
     text-align: center;
   }
   
-  .mailbox-widget h3 {
+  .mailbox-connect h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .mailbox-connect p {
+    font-size: 15px;
     margin-bottom: 15px;
-    color: #2c3e50;
   }
   
   .btn-primary {
@@ -77,8 +128,8 @@
     color: white;
     border: none;
     padding: 12px;
-    border-radius: 6px;
     font-size: 16px;
+    border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.3s;
   }
@@ -92,8 +143,8 @@
     color: white;
     border: none;
     padding: 12px;
-    border-radius: 6px;
     font-size: 16px;
+    border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.3s;
   }

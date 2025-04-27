@@ -111,19 +111,29 @@
 /* === Alumni Actions Side === */
 .alumni-actions {
   display: flex;
+  flex-direction: column; /* change from row to column */
   align-items: center;
-  gap: 15px;
+  gap: 10px; /* smaller gap */
 }
 
 .linkedin-icon {
+  font-size: 24px; /* smaller to match button */
   color: #0077b5;
-  font-size: 30px;
   text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: background 0.2s;
 }
 
 .linkedin-icon:hover {
-  color: #005983;
+  background-color: #0077b5;
+  color: white;
 }
+
 
 .contact-button {
   background-color: #3498db;
