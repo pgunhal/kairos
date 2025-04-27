@@ -1,11 +1,26 @@
 const { google } = require('googleapis');
 const Mailbox = require('../models/Mailbox');
 require('dotenv').config();
+
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
   process.env.GOOGLE_REDIRECT_URI
 );
+
+async function setupWatch(oauth2Client, userId = 'me') {
+  const gmail = google.gmail('v1');
+  const res = await gmail.users.watch({
+    userId,
+    auth: oauth2Client,
+    requestBody: {
+      topicName: process.env.GOOGLE_PUBSUB_TOPIC,
+      labelIds: ['INBOX'],
+      labelFilterBehavior: 'INCLUDE'
+    }
+  });
+  return res.data;
+}
 
 // Create URL for Gmail OAuth consent with offline access
 exports.getAuthUrl = async (req, res) => {
@@ -15,7 +30,9 @@ exports.getAuthUrl = async (req, res) => {
       scope: [
         'https://www.googleapis.com/auth/gmail.send',
         'https://www.googleapis.com/auth/gmail.readonly',
-        'https://www.googleapis.com/auth/userinfo.email'
+        'https://www.googleapis.com/auth/gmail.modify',
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/calendar'
       ],
       prompt: 'consent'
     });
@@ -53,6 +70,9 @@ exports.connectMailbox = async (req, res) => {
       const userInfo = await oauth2.userinfo.get();
       const googleEmail = userInfo.data.email;
 
+      // Setup Gmail push notifications
+      const watchResponse = await setupWatch(oauth2Client);
+
       // Check for existing mailbox
       let mailbox = await Mailbox.findOne({ userId, googleEmail });
 
@@ -63,7 +83,8 @@ exports.connectMailbox = async (req, res) => {
           { 
             refreshToken: tokens.refresh_token,
             googleEmail,
-            isConnected: true
+            isConnected: true,
+            historyId: watchResponse.historyId
           },
           { new: true }
         );
@@ -73,7 +94,8 @@ exports.connectMailbox = async (req, res) => {
           userId,
           refreshToken: tokens.refresh_token,
           googleEmail,
-          isConnected: true
+          isConnected: true,
+          historyId: watchResponse.historyId
         });
       }
 

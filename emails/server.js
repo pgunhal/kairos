@@ -3,32 +3,45 @@ const express = require('express');
 const cors = require('cors');
 const { OAuth2Client } = require('google-auth-library');
 const { google } = require('googleapis');
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const mongoose = require('mongoose');
+const Mailbox = require('./models/Mailbox');
+const Email = require('./models/Email');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+
+
 const PORT = process.env.PORT || 3000;
-const mongoClient = new MongoClient(process.env.MONGODB_URI, {
-    serverApi: {
-      version: ServerApiVersion.v1,
-      strict: true,
-      deprecationErrors: true,
-    }
-  });
 
 // Connect to MongoDB
-async function connectDB() {
-    try {
-        await mongoClient.connect();
-        console.log('Connected to MongoDB');
-    } catch (err) {
-        console.error('MongoDB connection error:', err);
-        process.exit(1);
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('MongoDB connection error:', err));
+
+// Only saves emails sent outbound by API
+async function saveEmail(userId, parsedMessage) {
+    if (parsedMessage.direction === 'outbound') {
+        // Handle outbound message
+        console.log('Outbound message:', parsedMessage);
+        const mostRecentEmailInThread = await Email.findOne({ threadId: parsedMessage.threadId }).sort({ date: -1 });
+
+        console.log("EMAIL SAVED NEW");
+
+        await Email.create({
+            userId: mongoose.Types.ObjectId.createFromHexString(userId),
+            previousEmail: mostRecentEmailInThread?._id ?? null,
+            subject: parsedMessage.subject,
+            from: parsedMessage.from,
+            to: parsedMessage.to,
+            emailId: parsedMessage.emailId,
+            threadId: parsedMessage.threadId,
+            direction: parsedMessage.direction,
+            content: parsedMessage.content
+        });
     }
 }
-connectDB();
 
 app.post('/send-email', async (req, res) => {
     console.log('Received request body:', req.body);
@@ -47,15 +60,12 @@ app.post('/send-email', async (req, res) => {
         }
 
         // Get refresh token from MongoDB
-        const db = mongoClient.db('test');
-        const tokensCollection = db.collection('mailboxes');
-        
         console.log('Looking up refresh token for userId:', userId);
-        const tokenDoc = await tokensCollection.findOne({ 
-            userId: ObjectId.createFromHexString(userId)
+        const mailbox = await Mailbox.findOne({ 
+            userId: mongoose.Types.ObjectId.createFromHexString(userId)
         });
 
-        if (!tokenDoc || !tokenDoc.refreshToken) {
+        if (!mailbox || !mailbox.refreshToken) {
             throw new Error('Refresh token not found for user');
         }
 
@@ -68,7 +78,7 @@ app.post('/send-email', async (req, res) => {
 
         console.log('Setting credentials...');
         oauth2Client.setCredentials({
-            refresh_token: tokenDoc.refreshToken
+            refresh_token: mailbox.refreshToken
         });
 
         try {
@@ -102,6 +112,16 @@ app.post('/send-email', async (req, res) => {
                     raw: encodedMessage,
                 }
             });
+            
+            await saveEmail(userId, {
+                subject,
+                from: sender,
+                to,
+                emailId: result.data.id,
+                threadId: result.data.threadId,
+                direction: sender === to ? 'self' : 'outbound',
+                content: text
+            });
 
             console.log('Email sent successfully:', result.data);
             res.status(200).json({
@@ -132,12 +152,6 @@ app.post('/send-email', async (req, res) => {
             error: error.message
         });
     }
-});
-
-// Graceful shutdown
-process.on('SIGINT', async () => {
-    await mongoClient.close();
-    process.exit(0);
 });
 
 app.listen(PORT, () => {
